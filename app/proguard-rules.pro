@@ -19,3 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep ML Kit classes
+-keep class com.google.mlkit.** { *; }
+-keep class com.google.firebase.** { *; }
+
+# Keep ML Kit internal dependencies
+-keep class androidx.lifecycle.ProcessLifecycleOwnerInitializer { *; }
+-keep class androidx.startup.InitializationProvider { *; }
+-keep class androidx.startup.AppInitializer { *; }

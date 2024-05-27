@@ -13,6 +13,12 @@ visionCommon = "17.3.0"
 playServicesMlkitTextRecognitionCommon = "19.0.0"
 composePreviewRenderer = "0.0.1-alpha01"
 cameraCore = "1.3.3"
+appcompat = "1.6.1"
+playServicesMlkitTextRecognition = "19.0.0"
+uiGraphicsAndroid = "1.6.7"
+uiGraphicsDesktop = "1.6.7"
+foundationAndroid = "1.6.7"
+material3Android = "1.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +40,12 @@ vision-common = { group = "com.google.mlkit", name = "vision-common", version.re
 play-services-mlkit-text-recognition-common = { group = "com.google.android.gms", name = "play-services-mlkit-text-recognition-common", version.ref = "playServicesMlkitTextRecognitionCommon" }
 compose-preview-renderer = { group = "com.android.tools.compose", name = "compose-preview-renderer", version.ref = "composePreviewRenderer" }
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+play-services-mlkit-text-recognition = { group = "com.google.android.gms", name = "play-services-mlkit-text-recognition", version.ref = "playServicesMlkitTextRecognition" }
+androidx-ui-graphics-android = { group = "androidx.compose.ui", name = "ui-graphics-android", version.ref = "uiGraphicsAndroid" }
+androidx-ui-graphics-desktop = { group = "androidx.compose.ui", name = "ui-graphics-desktop", version.ref = "uiGraphicsDesktop" }
+androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
+androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

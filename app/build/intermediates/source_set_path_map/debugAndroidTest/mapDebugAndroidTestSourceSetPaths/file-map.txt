@@ -1,0 +1,4 @@
+com.example.sy43_bookshelft.test.app-androidTest-0 C:\Users\nicol\OneDrive\Documents\BR02\SY43\SY43_project\app\build\generated\res\resValues\androidTest\debug
+com.example.sy43_bookshelft.test.app-mergeDebugAndroidTestResources-1 C:\Users\nicol\OneDrive\Documents\BR02\SY43\SY43_project\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.example.sy43_bookshelft.test.app-mergeDebugAndroidTestResources-2 C:\Users\nicol\OneDrive\Documents\BR02\SY43\SY43_project\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.example.sy43_bookshelft.test.app-debugAndroidTest-3 C:\Users\nicol\OneDrive\Documents\BR02\SY43\SY43_project\app\build\intermediates\merged_res\debugAndroidTest\mergeDebugAndroidTestResources
