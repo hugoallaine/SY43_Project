@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.sy43_bookshelft.app-mergeDebugResources-56:/values-et/values-et.xml",
+            "outputFile": "com.example.sy43_bookshelft.app-mergeDebugResources-61:/values-et/values-et.xml",
             "map": [
                 {
                     "source": "C:\\Users\\nicol\\.gradle\\caches\\transforms-3\\9bfd43c3b4db0cdf0780993209cebc34\\transformed\\play-services-base-18.1.0\\res\\values-et\\values.xml",

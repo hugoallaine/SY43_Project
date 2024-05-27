@@ -1,98 +1,98 @@
 [
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/layout_activity_main.xml.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/layout/activity_main.xml"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/drawable-anydpi-v24_ic_launcher_foreground.xml.flat",
+        "source": "com.example.sy43_bookshelft.app-pngs-59:/drawable-anydpi-v24/ic_launcher_foreground.xml"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/xml_data_extraction_rules.xml.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/xml/data_extraction_rules.xml"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/drawable-hdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.sy43_bookshelft.app-pngs-59:/drawable-hdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-hdpi_ic_launcher.webp.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-hdpi/ic_launcher.webp"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/drawable-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.sy43_bookshelft.app-pngs-59:/drawable-xhdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-xxhdpi_ic_launcher.webp.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-xxhdpi/ic_launcher.webp"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-mdpi/ic_launcher.webp"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/drawable-anydpi-v24_ic_launcher_foreground.xml.flat",
-        "source": "com.example.sy43_bookshelft.app-pngs-54:/drawable-anydpi-v24/ic_launcher_foreground.xml"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-xxxhdpi/ic_launcher.webp"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-xxxhdpi/ic_launcher_round.webp"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/drawable-mdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.sy43_bookshelft.app-pngs-59:/drawable-mdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/xml_backup_rules.xml.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/xml/backup_rules.xml"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/drawable/ic_launcher_background.xml"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/drawable-xxxhdpi_ic_launcher_foreground.png.flat",
-        "source": "com.example.sy43_bookshelft.app-pngs-54:/drawable-xxxhdpi/ic_launcher_foreground.png"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-xxhdpi/ic_launcher.webp"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-anydpi-v26/ic_launcher_round.xml"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/drawable_ic_launcher_background.xml.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/drawable/ic_launcher_background.xml"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/xml_data_extraction_rules.xml.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/xml/data_extraction_rules.xml"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-xhdpi_ic_launcher_round.webp.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-xhdpi/ic_launcher_round.webp"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-xhdpi_ic_launcher.webp.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-xhdpi/ic_launcher.webp"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/xml_backup_rules.xml.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/xml/backup_rules.xml"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/drawable-hdpi_ic_launcher_foreground.png.flat",
-        "source": "com.example.sy43_bookshelft.app-pngs-54:/drawable-hdpi/ic_launcher_foreground.png"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/layout_activity_main.xml.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/layout/activity_main.xml"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-xxxhdpi_ic_launcher.webp.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-xxxhdpi/ic_launcher.webp"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-xxxhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/drawable-xxhdpi_ic_launcher_foreground.png.flat",
-        "source": "com.example.sy43_bookshelft.app-pngs-54:/drawable-xxhdpi/ic_launcher_foreground.png"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-xxhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/drawable-mdpi_ic_launcher_foreground.png.flat",
-        "source": "com.example.sy43_bookshelft.app-pngs-54:/drawable-mdpi/ic_launcher_foreground.png"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-xhdpi/ic_launcher.webp"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/drawable-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.sy43_bookshelft.app-pngs-59:/drawable-xxhdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/drawable-xhdpi_ic_launcher_foreground.png.flat",
-        "source": "com.example.sy43_bookshelft.app-pngs-54:/drawable-xhdpi/ic_launcher_foreground.png"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/drawable_imagetest.png.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/drawable/imagetest.png"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-xxhdpi/ic_launcher_round.webp"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/drawable-ldpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.sy43_bookshelft.app-pngs-59:/drawable-ldpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/drawable_imagetest.png.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/drawable/imagetest.png"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-hdpi/ic_launcher.webp"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-hdpi_ic_launcher_round.webp.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-hdpi/ic_launcher_round.webp"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-xhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-mdpi_ic_launcher_round.webp.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-mdpi/ic_launcher_round.webp"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-mdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/drawable-ldpi_ic_launcher_foreground.png.flat",
-        "source": "com.example.sy43_bookshelft.app-pngs-54:/drawable-ldpi/ic_launcher_foreground.png"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/drawable-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.sy43_bookshelft.app-pngs-59:/drawable-xxxhdpi/ic_launcher_foreground.png"
     },
     {
-        "merged": "com.example.sy43_bookshelft.app-debug-58:/mipmap-mdpi_ic_launcher.webp.flat",
-        "source": "com.example.sy43_bookshelft.app-main-60:/mipmap-mdpi/ic_launcher.webp"
+        "merged": "com.example.sy43_bookshelft.app-debug-63:/mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.sy43_bookshelft.app-main-65:/mipmap-hdpi/ic_launcher_round.webp"
     }
 ]

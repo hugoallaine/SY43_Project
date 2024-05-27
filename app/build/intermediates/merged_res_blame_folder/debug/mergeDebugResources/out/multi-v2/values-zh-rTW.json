@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.sy43_bookshelft.app-mergeDebugResources-56:/values-zh-rTW/values-zh-rTW.xml",
+            "outputFile": "com.example.sy43_bookshelft.app-mergeDebugResources-61:/values-zh-rTW/values-zh-rTW.xml",
             "map": [
                 {
                     "source": "C:\\Users\\nicol\\.gradle\\caches\\transforms-3\\eecbf11dee13be104853bdbb63ceb960\\transformed\\ui-1.4.2\\res\\values-zh-rTW\\values-zh-rTW.xml",

@@ -61,4 +61,9 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.4.2")
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.2")
+    implementation("androidx.camera:camera-core:1.1.0")
+    implementation("androidx.camera:camera-camera2:1.1.0")
+    implementation("androidx.camera:camera-lifecycle:1.1.0")
+    implementation("androidx.camera:camera-view:1.1.0")
+    implementation("androidx.camera:camera-extensions:1.1.0")
 }

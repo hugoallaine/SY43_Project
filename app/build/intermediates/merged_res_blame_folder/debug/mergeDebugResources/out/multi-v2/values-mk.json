@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.sy43_bookshelft.app-mergeDebugResources-56:/values-mk/values-mk.xml",
+            "outputFile": "com.example.sy43_bookshelft.app-mergeDebugResources-61:/values-mk/values-mk.xml",
             "map": [
                 {
                     "source": "C:\\Users\\nicol\\.gradle\\caches\\transforms-3\\7bac158bc912b670c8da2a9a3bbfc921\\transformed\\material-1.6.1\\res\\values-mk\\values-mk.xml",
