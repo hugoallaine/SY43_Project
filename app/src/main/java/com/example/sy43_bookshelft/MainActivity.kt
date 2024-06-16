@@ -10,7 +10,7 @@ import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.sy43_bookshelft.ui.theme.SY43_bookshelftTheme
+import com.example.sy43_bookshelft.ui.theme.MainTheme
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            SY43_bookshelftTheme {
+            MainTheme {
                 Surface(color = MaterialTheme.colors.background) {
                     val navController = rememberNavController()
                     NavHost(navController = navController, startDestination = "home") {
