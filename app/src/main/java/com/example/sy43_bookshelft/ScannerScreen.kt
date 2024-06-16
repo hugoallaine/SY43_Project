@@ -20,12 +20,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,14 +41,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
@@ -57,11 +57,51 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import java.io.File
 import java.util.concurrent.ExecutorService
 
+fun CheckOrder(text: String): List<Pair<String, Boolean>> {
+    val callNumbers = text.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
+    if (callNumbers.isEmpty()) return emptyList()
+
+    val result = mutableListOf<Pair<String, Boolean>>()
+    for (i in 0 until callNumbers.size - 1) {
+        val current = callNumbers[i]
+        val next = callNumbers[i + 1]
+        result.add(Pair(current, isInCorrectOrder(current, next)))
+    }
+    result.add(Pair(callNumbers.last(), true))
+    return result
+}
+
+fun isInCorrectOrder(callNumber1: String, callNumber2: String): Boolean {
+    val pattern = Regex("([A-Z]{1,2})(\\d{1,4}(\\.\\d+)?)(\\.([A-Z]{1,3}))?")
+    val match1 = pattern.find(callNumber1) ?: return false
+    val match2 = pattern.find(callNumber2) ?: return false
+
+    val (class1, number1, _, _, cutter1) = match1.destructured
+    val (class2, number2, _, _, cutter2) = match2.destructured
+
+    println("Comparing: $callNumber1 vs $callNumber2")
+    println("Class: $class1 vs $class2")
+    println("Number: $number1 vs $number2")
+    println("Cutter: $cutter1 vs $cutter2")
+
+    if (class1 != class2) {
+        return class1 < class2
+    }
+    if (number1.toDouble() != number2.toDouble()) {
+        return number1.toDouble() < number2.toDouble()
+    }
+    if (cutter1 != cutter2) {
+        return (cutter1 ?: "") < (cutter2 ?: "")
+    }
+    return true // If all other components are the same, consider them in correct order.
+}
+
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorService) {
     var scannedText by mutableStateOf("")
     var errorMessage by mutableStateOf("")
+    var orderedResults by mutableStateOf<List<Pair<String, Boolean>>>(emptyList())
     val PREVIEW_ASPECT_RATIO = AspectRatio.RATIO_16_9
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -96,7 +136,7 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text("Scanned Text: ${scannedText}")
+                        Text("Scanned Text: $scannedText")
                     }
 
                     Box(
@@ -108,32 +148,33 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                             .border(2.dp, Color.White)
                             .align(Alignment.TopCenter),
                         contentAlignment = Alignment.Center
-                    ) {
-                        if (errorMessage.isNotEmpty()) {
-                            Text(
-                                text = "Error: ${errorMessage}",
-                                color = Color.Red,
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.rotate(270f)
-                            )
-                        } else if (scannedText.isNotEmpty()) {
-                            Box(
-                                modifier = Modifier
-                                    .rotate(270f)
-                                    .onGloballyPositioned { layoutCoordinates ->
-                                        boxSize = layoutCoordinates.size.toSize()
-                                    }
-                                    .width(screenHeight)
-                                    .height(screenWidth)
-                                    .background(Color.White),
-                                contentAlignment = Alignment.Center
-                            ) {
+                    ) {}
+
+                    // Error message or success
+                    if (errorMessage.isNotEmpty()) {
+                        Text(
+                            text = "Error: $errorMessage",
+                            color = Color.Red,
+                            fontSize = 10.sp,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                    if (scannedText.isNotEmpty()) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .rotate(270f)
+                                .align(Alignment.Center)
+                                .offset(x = (120).dp)
+                        ) {
+                            items(orderedResults) { (line, isCorrect) ->
                                 Text(
-                                    text = scannedText.split("\n").joinToString("\n"),
-                                    color = Color.Green,
+                                    text = line,
+                                    color = if (isCorrect) Color.Green else Color.Red,
                                     fontSize = 10.sp,
-                                    textAlign = TextAlign.Center
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .padding(8.dp)
                                 )
                             }
                         }
@@ -172,7 +213,14 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                                             .addOnSuccessListener { visionText ->
                                                 scannedText = visionText.text
                                                 errorMessage = ""
-                                                CheckOrder(visionText.text)
+                                                if (scannedText == "") {
+                                                    errorMessage = "No books detected!"
+                                                } else {
+                                                    orderedResults = CheckOrder(visionText.text)
+                                                    if (orderedResults.any { !it.second }) {
+                                                        errorMessage = "Books are not in order!"
+                                                    }
+                                                }
                                             }
                                             .addOnFailureListener { e ->
                                                 errorMessage = "Failed to scan text: ${e.message}"
@@ -269,13 +317,4 @@ fun CameraPreview(
             .fillMaxWidth()
             .aspectRatio(16f / 9f)  // Set aspect ratio to 16:9
     )
-}
-
-fun CheckOrder(text: String) {
-    // Simulate checking order of book spines based on Library of Congress Classification
-    val callNumbers = text.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
-    if (callNumbers.isEmpty()) return
-
-    // Here you can implement the logic to verify the order of the call numbers.
-    // For now, just return the call numbers as they are.
 }
