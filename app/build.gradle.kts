@@ -54,7 +54,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics:1.4.2")
     implementation("androidx.compose.foundation:foundation:1.4.2")
     implementation("androidx.compose.material:material:1.4.2")
-    implementation("androidx.startup:startup-runtime:1.1.1") // Ajout de androidx.startup
+    implementation("androidx.startup:startup-runtime:1.1.1")
+    implementation(libs.androidx.navigation.compose) // Ajout de androidx.startup
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")

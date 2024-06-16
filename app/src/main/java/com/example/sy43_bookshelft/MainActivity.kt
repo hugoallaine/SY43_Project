@@ -1,50 +1,16 @@
 package com.example.sy43_bookshelft
+
 import android.Manifest
-import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Size
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
-import androidx.camera.core.*
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.sy43_bookshelft.ui.theme.SY43_bookshelftTheme
-import com.google.common.util.concurrent.ListenableFuture
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -62,8 +28,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SY43_bookshelftTheme {
-                val viewModel: BookViewModel by viewModels()
-                MainScreen(viewModel, cameraExecutor)
+                Surface(color = MaterialTheme.colors.background) {
+                    val navController = rememberNavController()
+                    NavHost(navController = navController, startDestination = "home") {
+                        composable("home") { HomeScreen(navController) }
+                        composable("scanner") { ScannerScreen(navController, cameraExecutor) }
+                        composable("list") { ListScreen(navController) }
+                    }
+                }
             }
         }
     }
@@ -75,218 +47,5 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 10
-        const val DESIRED_WIDTH = 4000
-        const val DESIRED_HEIGHT = 900
-        const val PREVIEW_ASPECT_RATIO = AspectRatio.RATIO_16_9
     }
-}
-
-class BookViewModel : ViewModel() {
-    var scannedText by mutableStateOf("")
-    var errorMessage by mutableStateOf("")
-}
-
-@Composable
-fun MainScreen(viewModel: BookViewModel, cameraExecutor: ExecutorService) {
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    var boxSize by remember { mutableStateOf(androidx.compose.ui.geometry.Size.Zero) }
-    val screenHeight = configuration.screenHeightDp.dp
-    val screenWidth = configuration.screenWidthDp.dp
-
-    Surface(modifier = Modifier.fillMaxSize()) {
-        if (isLandscape) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                val context = LocalContext.current
-                val lifecycleOwner = LocalLifecycleOwner.current
-                val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
-
-                var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
-
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Column(modifier = Modifier.align(Alignment.Center)) {
-                        CameraPreview(
-                            cameraProviderFuture = cameraProviderFuture,
-                            lifecycleOwner = lifecycleOwner,
-                            aspectRatio = MainActivity.PREVIEW_ASPECT_RATIO,
-                            onImageCaptureReady = { imageCapture = it },
-                            onError = { message -> viewModel.errorMessage = message }
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text("Scanned Text: ${viewModel.scannedText}")
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(140.dp)
-                            .offset(y = (-40).dp)  // Offset from the top
-                            .background(Color.Black)
-                            .border(2.dp, Color.White)
-                            .align(Alignment.TopCenter),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (viewModel.errorMessage.isNotEmpty()) {
-                            Text(
-                                text = "Error: ${viewModel.errorMessage}",
-                                color = Color.Red,
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center,
-                            )
-                        } else if (viewModel.scannedText.isNotEmpty()) {
-                                LazyRow(
-                                    modifier = Modifier
-                                        .width(180.dp)
-                                ) {
-                                    items(viewModel.scannedText.split("\n")) { line ->
-                                        Text(
-                                            text = line,
-                                            color = Color.Green,
-                                            fontSize = 10.sp,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier
-                                                .background(Color.Red)
-                                                .rotate(270f)
-                                                .padding(8.dp)
-                                        )
-                                    }
-                                }
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(140.dp)
-                            .offset(y = (-40).dp)  // Offset from the top
-                            .background(Color.Black)
-                            .border(2.dp, Color.White)
-                            .align(Alignment.TopCenter),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (viewModel.errorMessage.isNotEmpty()) {
-                            Text(
-                                text = "Error: ${viewModel.errorMessage}",
-                                color = Color.Red,
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.graphicsLayer(rotationZ = 270f)
-                            )
-                        } else if (viewModel.scannedText.isNotEmpty()) {
-                            Box(
-                                modifier = Modifier
-                                    .graphicsLayer(rotationZ = 270f)
-                                    .onGloballyPositioned { layoutCoordinates ->
-                                        boxSize = layoutCoordinates.size.toSize()
-                                    }
-                                    .width(screenHeight)
-                                    .height(screenWidth)
-                                    .background(Color.White),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = viewModel.scannedText.split("\n").joinToString("\n"),
-                                    color = Color.Green,
-                                    fontSize = 10.sp,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .background(Color.Red)  // Remove if background is not needed
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Text("Please rotate your device to landscape mode")
-            }
-        }
-    }
-}
-
-@Composable
-fun CameraPreview(
-    cameraProviderFuture: ListenableFuture<ProcessCameraProvider>,
-    lifecycleOwner: LifecycleOwner,
-    aspectRatio: Int,
-    onImageCaptureReady: (ImageCapture) -> Unit,
-    onError: (String) -> Unit
-) {
-    val context = LocalContext.current
-    val previewSurfaceView = remember { SurfaceView(context) }
-
-    AndroidView(
-        factory = {
-            previewSurfaceView.holder.addCallback(object : SurfaceHolder.Callback {
-                override fun surfaceCreated(holder: SurfaceHolder) {
-                    cameraProviderFuture.addListener({
-                        val cameraProvider = cameraProviderFuture.get()
-                        val preview = Preview.Builder()
-                            .setTargetAspectRatio(aspectRatio)
-                            .build()
-                        preview.setSurfaceProvider { request ->
-                            val surface = holder.surface
-                            request.provideSurface(surface, context.mainExecutor) { result ->
-                                if (result.resultCode != SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY) {
-                                    onError("Surface was not used successfully: ${result.resultCode}")
-                                }
-                            }
-                        }
-                        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-                        val imageCapture = ImageCapture.Builder()
-                            .setTargetResolution(Size(MainActivity.DESIRED_WIDTH, MainActivity.DESIRED_HEIGHT))
-                            .build()
-
-                        try {
-                            cameraProvider.unbindAll()
-                            cameraProvider.bindToLifecycle(
-                                lifecycleOwner,
-                                cameraSelector,
-                                preview,
-                                imageCapture
-                            )
-                            onImageCaptureReady(imageCapture)
-                        } catch (exc: Exception) {
-                            onError("Failed to bind camera: ${exc.message}")
-                        }
-                    }, context.mainExecutor)
-                }
-
-                override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-                    // Handle surface changes if necessary
-                }
-
-                override fun surfaceDestroyed(holder: SurfaceHolder) {
-                    // Handle surface destruction if necessary
-                }
-            })
-            previewSurfaceView
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(16f / 9f)  // Set aspect ratio to 16:9
-    )
-}
-
-fun CheckOrder(text: String) {
-    // Simulate checking order of book spines based on Library of Congress Classification
-    val callNumbers = text.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
-    if (callNumbers.isEmpty()) return
-
-    // Here you can implement the logic to verify the order of the call numbers.
-    // For now, just return the call numbers as they are.
 }

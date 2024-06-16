@@ -3,4 +3,6 @@
     <string name="image_desc">Image Preview</string>
     <string name="capture">Capture Image</string>
     <string name="recognized_text">Recognized Text will appear here</string>
+    <string name="scan_btn_home">Scanner une étagère</string>
+    <string name="list_btn_home">Liste des côtes</string>
 </resources>
