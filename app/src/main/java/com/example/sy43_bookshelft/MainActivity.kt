@@ -1,6 +1,3 @@
-// File: MainActivity.kt
-package com.example.sy43_bookshelft
-
 import android.Manifest
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -12,12 +9,7 @@ import android.view.SurfaceView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.camera.core.AspectRatio
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
-import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,10 +22,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LifecycleOwner
@@ -80,7 +76,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// ViewModel to manage the app's state
 class BookViewModel : ViewModel() {
     var scannedText by mutableStateOf("")
     var errorMessage by mutableStateOf("")
@@ -90,13 +85,18 @@ class BookViewModel : ViewModel() {
 fun MainScreen(viewModel: BookViewModel, cameraExecutor: ExecutorService) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    var boxSize by remember { mutableStateOf(androidx.compose.ui.geometry.Size.Zero) }
+    val screenHeight = configuration.screenHeightDp.dp
+    val screenWidth = configuration.screenWidthDp.dp
 
     Surface(modifier = Modifier.fillMaxSize()) {
         if (isLandscape) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxSize().padding(16.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
                 val context = LocalContext.current
                 val lifecycleOwner = LocalLifecycleOwner.current
@@ -119,45 +119,54 @@ fun MainScreen(viewModel: BookViewModel, cameraExecutor: ExecutorService) {
                         Text("Scanned Text: ${viewModel.scannedText}")
                     }
 
-                    // Add black bars to the top and bottom with padding for the offset and borders
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(140.dp)
-                        .offset(y = (-40).dp)  // Offset from the top
-                        .background(Color.Black)
-                        .border(2.dp, Color.White)
-                        .align(Alignment.TopCenter),
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(140.dp)
+                            .offset(y = (-40).dp)  // Offset from the top
+                            .background(Color.Black)
+                            .border(2.dp, Color.White)
+                            .align(Alignment.TopCenter),
                         contentAlignment = Alignment.Center
                     ) {
                         if (viewModel.errorMessage.isNotEmpty()) {
-                            Text(text = "Error: ${viewModel.errorMessage}", color = Color.Red)
+                            Text(
+                                text = "Error: ${viewModel.errorMessage}",
+                                color = Color.Red,
+                                fontSize = 10.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.rotate(270f)
+                            )
                         } else if (viewModel.scannedText.isNotEmpty()) {
-                            Row(
+                            Box(
                                 modifier = Modifier
-                                    .padding(bottom = 0.dp),  // Adjust padding to move text lower
-                                verticalAlignment = Alignment.CenterVertically
+                                    .rotate(270f)
+                                    .onGloballyPositioned { layoutCoordinates ->
+                                        boxSize = layoutCoordinates.size.toSize()
+                                    }
+                                    .width(screenHeight)
+                                    .height(screenWidth)
+                                    .background(Color.White),
+                                contentAlignment = Alignment.Center
                             ) {
-                                viewModel.scannedText.split("\n").forEach { line ->
-                                    Text(
-                                        text = line,
-                                        color = Color.Green,
-                                        modifier = Modifier
-                                            .padding(5.dp)
-                                            .rotate(270f)
-                                    )
-                                }
+                                Text(
+                                    text = viewModel.scannedText.split("\n").joinToString("\n"),
+                                    color = Color.Green,
+                                    fontSize = 10.sp,
+                                    textAlign = TextAlign.Center
+                                )
                             }
                         }
                     }
 
-
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(160.dp)
-                        .offset(y = 40.dp)  // Offset from the bottom
-                        .background(Color.Black)
-                        .border(2.dp, Color.White)
-                        .align(Alignment.BottomCenter),
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp)
+                            .offset(y = 40.dp)  // Offset from the bottom
+                            .background(Color.Black)
+                            .border(2.dp, Color.White)
+                            .align(Alignment.BottomCenter),
                         contentAlignment = Alignment.Center // Align button to the center
                     ) {
                         Button(onClick = {
@@ -169,7 +178,6 @@ fun MainScreen(viewModel: BookViewModel, cameraExecutor: ExecutorService) {
                                 object : ImageCapture.OnImageSavedCallback {
                                     override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                                         val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-                                        // Crop the bitmap to the area between the black bars
                                         val croppedBitmap = Bitmap.createBitmap(
                                             bitmap,
                                             0,
@@ -183,7 +191,6 @@ fun MainScreen(viewModel: BookViewModel, cameraExecutor: ExecutorService) {
                                             .addOnSuccessListener { visionText ->
                                                 viewModel.scannedText = visionText.text
                                                 viewModel.errorMessage = ""
-                                                // Display the classifications
                                                 CheckOrder(visionText.text)
                                             }
                                             .addOnFailureListener { e ->
