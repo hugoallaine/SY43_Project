@@ -1,3 +1,4 @@
+package com.example.sy43_bookshelft
 import android.Manifest
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -14,6 +15,9 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -135,12 +140,50 @@ fun MainScreen(viewModel: BookViewModel, cameraExecutor: ExecutorService) {
                                 color = Color.Red,
                                 fontSize = 10.sp,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.rotate(270f)
+                            )
+                        } else if (viewModel.scannedText.isNotEmpty()) {
+                                LazyRow(
+                                    modifier = Modifier
+                                        .width(180.dp)
+                                ) {
+                                    items(viewModel.scannedText.split("\n")) { line ->
+                                        Text(
+                                            text = line,
+                                            color = Color.Green,
+                                            fontSize = 10.sp,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier
+                                                .background(Color.Red)
+                                                .rotate(270f)
+                                                .padding(8.dp)
+                                        )
+                                    }
+                                }
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(140.dp)
+                            .offset(y = (-40).dp)  // Offset from the top
+                            .background(Color.Black)
+                            .border(2.dp, Color.White)
+                            .align(Alignment.TopCenter),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (viewModel.errorMessage.isNotEmpty()) {
+                            Text(
+                                text = "Error: ${viewModel.errorMessage}",
+                                color = Color.Red,
+                                fontSize = 10.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.graphicsLayer(rotationZ = 270f)
                             )
                         } else if (viewModel.scannedText.isNotEmpty()) {
                             Box(
                                 modifier = Modifier
-                                    .rotate(270f)
+                                    .graphicsLayer(rotationZ = 270f)
                                     .onGloballyPositioned { layoutCoordinates ->
                                         boxSize = layoutCoordinates.size.toSize()
                                     }
@@ -153,60 +196,12 @@ fun MainScreen(viewModel: BookViewModel, cameraExecutor: ExecutorService) {
                                     text = viewModel.scannedText.split("\n").joinToString("\n"),
                                     color = Color.Green,
                                     fontSize = 10.sp,
-                                    textAlign = TextAlign.Center
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .background(Color.Red)  // Remove if background is not needed
                                 )
                             }
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(160.dp)
-                            .offset(y = 40.dp)  // Offset from the bottom
-                            .background(Color.Black)
-                            .border(2.dp, Color.White)
-                            .align(Alignment.BottomCenter),
-                        contentAlignment = Alignment.Center // Align button to the center
-                    ) {
-                        Button(onClick = {
-                            val file = File(context.cacheDir, "image.jpg")
-                            val outputOptions = ImageCapture.OutputFileOptions.Builder(file).build()
-                            imageCapture?.takePicture(
-                                outputOptions,
-                                cameraExecutor,
-                                object : ImageCapture.OnImageSavedCallback {
-                                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                                        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-                                        val croppedBitmap = Bitmap.createBitmap(
-                                            bitmap,
-                                            0,
-                                            bitmap.height / 3,
-                                            bitmap.width,
-                                            bitmap.height / 3
-                                        )
-                                        val image = InputImage.fromBitmap(croppedBitmap, 0)
-                                        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-                                        recognizer.process(image)
-                                            .addOnSuccessListener { visionText ->
-                                                viewModel.scannedText = visionText.text
-                                                viewModel.errorMessage = ""
-                                                CheckOrder(visionText.text)
-                                            }
-                                            .addOnFailureListener { e ->
-                                                viewModel.errorMessage = "Failed to scan text: ${e.message}"
-                                                viewModel.scannedText = ""
-                                            }
-                                    }
-
-                                    override fun onError(exception: ImageCaptureException) {
-                                        viewModel.errorMessage = "Image capture failed: ${exception.message}"
-                                        viewModel.scannedText = ""
-                                    }
-                                }
-                            )
-                        }) {
-                            Text("Capture Image (${MainActivity.DESIRED_WIDTH}x${MainActivity.DESIRED_HEIGHT})")
                         }
                     }
                 }
