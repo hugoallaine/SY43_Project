@@ -56,8 +56,16 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import java.io.File
 import java.util.concurrent.ExecutorService
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 
-fun CheckOrder(text: String): List<Pair<String, Boolean>> {
+fun CheckOrder(text: String, classification: String): List<Pair<String, Boolean>> {
     val callNumbers = text.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
     if (callNumbers.isEmpty()) return emptyList()
 
@@ -65,19 +73,34 @@ fun CheckOrder(text: String): List<Pair<String, Boolean>> {
     for (i in 0 until callNumbers.size - 1) {
         val current = callNumbers[i]
         val next = callNumbers[i + 1]
-        result.add(Pair(current, isInCorrectOrder(current, next)))
+        result.add(Pair(current, isInCorrectOrder(current, next, classification)))
     }
     result.add(Pair(callNumbers.last(), true))
     return result
 }
 
-fun isInCorrectOrder(callNumber1: String, callNumber2: String): Boolean {
-    val pattern = Regex("([A-Z]{1,2})(\\d{1,4}(\\.\\d+)?)(\\.([A-Z]{1,3}))?")
-    val match1 = pattern.find(callNumber1) ?: return false
-    val match2 = pattern.find(callNumber2) ?: return false
+fun isInCorrectOrder(callNumber1: String, callNumber2: String, classification: String): Boolean {
+    val pattern = when (classification) {
+        "LCC" -> Regex("([A-Z]{1,2})(\\d{1,4}(\\.\\d+|,\\d+)?)(\\.([A-Z]{1,3}))?")
+        "Romans Graphique" -> Regex("([0-9]{3})(\\.\\d+)?") // Example regex for Dewey Decimal
+        else -> Regex("([A-Z]{1,2})(\\d{1,4}(\\.\\d+|,\\d+)?)(\\.([A-Z]{1,3}))?")
+    }
 
-    val (class1, number1, _, _, cutter1) = match1.destructured
-    val (class2, number2, _, _, cutter2) = match2.destructured
+    val match1 = pattern.find(callNumber1)
+    val match2 = pattern.find(callNumber2)
+
+    if (match1 == null || match2 == null) {
+        println("Invalid format: $callNumber1 or $callNumber2")
+        return false
+    }
+
+    val class1 = match1.groupValues[1].replace(" ", "")
+    val number1 = match1.groupValues[2].replace(",", ".").replace(" ", "")
+    val cutter1 = match1.groupValues[5].replace(" ", "").take(3)
+
+    val class2 = match2.groupValues[1].replace(" ", "")
+    val number2 = match2.groupValues[2].replace(",", ".").replace(" ", "")
+    val cutter2 = match2.groupValues[5].replace(" ", "").take(3)
 
     println("Comparing: $callNumber1 vs $callNumber2")
     println("Class: $class1 vs $class2")
@@ -87,14 +110,22 @@ fun isInCorrectOrder(callNumber1: String, callNumber2: String): Boolean {
     if (class1 != class2) {
         return class1 < class2
     }
+
     if (number1.toDouble() != number2.toDouble()) {
         return number1.toDouble() < number2.toDouble()
     }
+
     if (cutter1 != cutter2) {
         return (cutter1 ?: "") < (cutter2 ?: "")
     }
-    return true // If all other components are the same, consider them in correct order.
+
+    return true // Si tous les autres composants sont identiques, les considérer dans le bon ordre.
 }
+
+
+
+
+
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -102,6 +133,10 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
     var scannedText by mutableStateOf("")
     var errorMessage by mutableStateOf("")
     var orderedResults by mutableStateOf<List<Pair<String, Boolean>>>(emptyList())
+    var expanded by remember { mutableStateOf(false) }
+    var selectedClassification by remember { mutableStateOf("LCC") }
+    val classifications = listOf("LCC", "Dewey", "Other") // Add other classifications as needed
+
     val PREVIEW_ASPECT_RATIO = AspectRatio.RATIO_16_9
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -190,52 +225,79 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                             .align(Alignment.BottomCenter),
                         contentAlignment = Alignment.Center // Align button to the center
                     ) {
-                        Button(onClick = {
-                            val file = File(context.cacheDir, "image.jpg")
-                            val outputOptions = ImageCapture.OutputFileOptions.Builder(file).build()
-                            imageCapture?.takePicture(
-                                outputOptions,
-                                cameraExecutor,
-                                object : ImageCapture.OnImageSavedCallback {
-                                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                                        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-                                        val croppedBitmap = Bitmap.createBitmap(
-                                            bitmap,
-                                            0,
-                                            bitmap.height / 3,
-                                            bitmap.width,
-                                            bitmap.height / 3
-                                        )
-                                        val image = InputImage.fromBitmap(croppedBitmap, 0)
-                                        val recognizer = TextRecognition.getClient(
-                                            TextRecognizerOptions.DEFAULT_OPTIONS)
-                                        recognizer.process(image)
-                                            .addOnSuccessListener { visionText ->
-                                                scannedText = visionText.text
-                                                errorMessage = ""
-                                                if (scannedText == "") {
-                                                    errorMessage = "No books detected!"
-                                                } else {
-                                                    orderedResults = CheckOrder(visionText.text)
-                                                    if (orderedResults.any { !it.second }) {
-                                                        errorMessage = "Books are not in order!"
-                                                    }
-                                                }
-                                            }
-                                            .addOnFailureListener { e ->
-                                                errorMessage = "Failed to scan text: ${e.message}"
-                                                scannedText = ""
-                                            }
-                                    }
-
-                                    override fun onError(exception: ImageCaptureException) {
-                                        errorMessage = "Image capture failed: ${exception.message}"
-                                        scannedText = ""
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.wrapContentWidth()
+                        ) {
+                            // Dropdown for classification selection
+                            Box(
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .clickable { expanded = true }
+                                    .background(Color.Gray)
+                                    .padding(8.dp)
+                            ) {
+                                Text(text = selectedClassification)
+                                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                    classifications.forEach { classification ->
+                                        DropdownMenuItem(text = {Text(text = classification)}, onClick = {
+                                            selectedClassification = classification
+                                            expanded = false
+                                        })
                                     }
                                 }
-                            )
-                        }) {
-                            Text("Capture Image")
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            // Capture Image Button
+                            Button(onClick = {
+                                val file = File(context.cacheDir, "image.jpg")
+                                val outputOptions = ImageCapture.OutputFileOptions.Builder(file).build()
+                                imageCapture?.takePicture(
+                                    outputOptions,
+                                    cameraExecutor,
+                                    object : ImageCapture.OnImageSavedCallback {
+                                        override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                                            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                                            val croppedBitmap = Bitmap.createBitmap(
+                                                bitmap,
+                                                0,
+                                                bitmap.height / 3,
+                                                bitmap.width,
+                                                bitmap.height / 3
+                                            )
+                                            val image = InputImage.fromBitmap(croppedBitmap, 0)
+                                            val recognizer = TextRecognition.getClient(
+                                                TextRecognizerOptions.DEFAULT_OPTIONS)
+                                            recognizer.process(image)
+                                                .addOnSuccessListener { visionText ->
+                                                    scannedText = visionText.text
+                                                    errorMessage = ""
+                                                    if (scannedText == "") {
+                                                        errorMessage = "No books detected!"
+                                                    } else {
+                                                        orderedResults = CheckOrder(visionText.text, selectedClassification)
+                                                        if (orderedResults.any { !it.second }) {
+                                                            errorMessage = "Books are not in order!"
+                                                        }
+                                                    }
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    errorMessage = "Failed to scan text: ${e.message}"
+                                                    scannedText = ""
+                                                }
+                                        }
+
+                                        override fun onError(exception: ImageCaptureException) {
+                                            errorMessage = "Image capture failed: ${exception.message}"
+                                            scannedText = ""
+                                        }
+                                    }
+                                )
+                            }) {
+                                Text("Capture Image")
+                            }
                         }
                     }
                 }
@@ -250,7 +312,6 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
         }
     }
 }
-
 @Composable
 fun CameraPreview(
     cameraProviderFuture: ListenableFuture<ProcessCameraProvider>,
