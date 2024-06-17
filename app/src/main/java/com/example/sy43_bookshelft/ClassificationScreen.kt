@@ -1,6 +1,7 @@
 package com.example.sy43_bookshelft
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,9 +21,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import java.io.BufferedReader
+import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
+import java.io.FileWriter
 import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 
 @Composable
 fun ClassificationScreen(navController: NavHostController) {
@@ -39,7 +43,7 @@ fun ClassificationScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text("Modifier les classifications", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
+            Text("Edit classifications", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
 
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(classifications.toList()) { (name, regex) ->
@@ -49,9 +53,11 @@ fun ClassificationScreen(navController: NavHostController) {
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
                     ) {
-                        Text(name, modifier = Modifier.weight(1f))
+                        Text("$name :", modifier = Modifier.weight(1f))
                         Text(regex.pattern, modifier = Modifier.weight(2f))
                     }
+                    // draw a line between each item
+                    HorizontalDivider()
                 }
             }
 
@@ -68,7 +74,7 @@ fun ClassificationScreen(navController: NavHostController) {
                 contentAlignment = Alignment.BottomEnd
             ) {
                 Button(onClick = { showModal = true }) {
-                    Text("Ajouter une classification")
+                    Text("Add a new classification")
                 }
             }
         }
@@ -83,9 +89,9 @@ fun ClassificationScreen(navController: NavHostController) {
                             put(name, Regex(regex))
                         }
                         saveRegexesToFile(context, classifications)
-                        errorMessage = "Classification ajoutée avec succès"
+                        errorMessage = "Classification added successfully!"
                     } catch (e: Exception) {
-                        errorMessage = "Modèle de regex invalide"
+                        errorMessage = "Wrong regex format $regex"
                     }
                 }
             )
@@ -124,7 +130,7 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                 }
             }
 
-            Text("Nouvelle classification", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
+            Text("New classification", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
 
             BasicTextField(
                 value = classificationName,
@@ -136,7 +142,7 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                 singleLine = true,
                 decorationBox = { innerTextField ->
                     if (classificationName.isEmpty()) {
-                        Text("Entrer le nom de la classification", color = Color.Gray)
+                        Text("Entrer the name of the classification", color = Color.Gray)
                     }
                     innerTextField()
                 }
@@ -144,7 +150,7 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Configurer la regex", fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp))
+            Text("Configure regex", fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp))
 
             LazyColumn(
                 modifier = Modifier
@@ -161,7 +167,7 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Partie ${index + 1}: ", modifier = Modifier.weight(1f))
+                            Text("Part ${index + 1}: ", modifier = Modifier.weight(1f))
                             DropdownWithLabel(
                                 label = "Min",
                                 options = (0..9).map { it.toString() },
@@ -185,10 +191,10 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                             DropdownWithLabel(
                                 label = "Type",
                                 options = listOf(
-                                    "Lettres [A-Z]",
-                                    "Chiffres [0-9]",
-                                    "Lettres\n ou Chiffres \n[A-Z0-9]",
-                                    "Virgule\n ou Point"
+                                    "Letters [A-Z]",
+                                    "Digits [0-9]",
+                                    "Letters\n Or Digits \n[A-Z0-9]",
+                                    "Comma\n or Dot"
                                 ),
                                 selectedOption = part.type,
                                 onOptionSelected = { selected ->
@@ -198,13 +204,13 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                                 }
                             )
                             DropdownWithLabel(
-                                label = "Facultatif",
-                                options = listOf("Oui", "Non"),
-                                selectedOption = if (part.optional) "Oui" else "Non",
+                                label = "Optional",
+                                options = listOf("Yes", "No"),
+                                selectedOption = if (part.optional) "Yes" else "No",
                                 onOptionSelected = { selected ->
                                     regexParts = regexParts.toMutableList().apply {
                                         this[index] =
-                                            this[index].copy(optional = selected == "Oui")
+                                            this[index].copy(optional = selected == "Yes")
                                     }
                                 }
                             )
@@ -212,25 +218,29 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                     }
 
                 }
-            }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(onClick = onClose, modifier = Modifier.padding(end = 8.dp)) {
+                            Text("Cancel")
+                        }
+                        Button(onClick = {
+                            if (classificationName.isNotEmpty()) {
+                                println("Save button clicked")
+                                val regex = regexParts.joinToString("") { it.toRegexPart() }
+                                onSave(classificationName, regex)
+                                onClose()
+                            } else {
+                                println("Invalid input")
+                            }
+                        }) {
+                            Text("Save")
+                        }
+                    } // End of button row
+                }} // End of LazyColumn
 
-            Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(onClick = onClose, modifier = Modifier.padding(end = 8.dp)) {
-                    Text("Annuler")
-                }
-                Button(onClick = {
-                    if (classificationName.isNotEmpty() && regexParts.all { it.isValid() }) {
-                        val regex = regexParts.joinToString("") { it.toRegexPart() }
-                        onSave(classificationName, regex)
-                        onClose()
-                    }
-                }) {
-                    Text("Sauvegarder")
-                }
-            }
 
         }
     }
@@ -279,37 +289,76 @@ data class RegexPart(
 
     fun toRegexPart(): String {
         val typePattern = when (type) {
-            "Lettres [A-Z]" -> "[A-Z]"
-            "Chiffres [0-9]" -> "\\d"
-            "Lettres ou Chiffres [A-Z0-9]" -> "[A-Z\\d]"
+            "Letters [A-Z]" -> "[A-Z]"
+            "Digits [0-9]" -> "[0-9]"
+            "Letters Or Digits [A-Z0-9]" -> "[A-Z0-9]"
+            "Comma or Dot" -> "[.,]"
             else -> ""
         }
         val optionalPart = if (optional) "?" else ""
-        return "$typePattern{$min,$max}$optionalPart"
+        if(typePattern.isNotEmpty()){
+            return "($typePattern{$min,$max}$optionalPart)"
+        }
+        return ""
     }
 }
 
 fun loadRegexesFromFile(context: Context): Map<String, Regex> {
     val regexMap = mutableMapOf<String, Regex>()
-    val inputStream = context.resources.openRawResource(R.raw.regex)
-    BufferedReader(InputStreamReader(inputStream)).use { reader ->
-        reader.forEachLine { line ->
-            val parts = line.split(":")
-            if (parts.size == 2) {
-                val name = parts[0]
-                val regex = parts[1].toRegex()
-                regexMap[name] = regex
+
+    // Check if the internal storage file exists
+    val fileName = "regex.txt"
+    val internalFile = context.getFileStreamPath(fileName)
+    if (internalFile.exists()) {
+        try {
+            val inputStream = context.openFileInput(fileName)
+            BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                reader.forEachLine { line ->
+                    val parts = line.split(":")
+                    if (parts.size == 2) {
+                        val name = parts[0]
+                        val regex = parts[1].toRegex()
+                        regexMap[name] = regex
+                    }
+                }
             }
+        } catch (e: Exception) {
+            // Handle exception if there's an issue opening the internal file
+            e.printStackTrace()
+        }
+    } else {
+        // If the internal file doesn't exist, fall back to raw resource
+        try {
+            val inputStream = context.resources.openRawResource(R.raw.regex)
+            BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                reader.forEachLine { line ->
+                    val parts = line.split(":")
+                    if (parts.size == 2) {
+                        val name = parts[0]
+                        val regex = parts[1].toRegex()
+                        regexMap[name] = regex
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
-    return regexMap
+
+        return regexMap
+    }
+fun saveRegexesToFile(context: Context, regexMap: Map<String, Regex>) {
+        try {
+            val outputStream = context.openFileOutput("regex.txt", Context.MODE_APPEND) // Consider using MODE_PRIVATE if desired
+            val writer = BufferedWriter(OutputStreamWriter(outputStream))
+            writer.use { writer ->
+                regexMap.forEach { (name, regex) ->
+                    writer.appendln("$name: ${regex.pattern}")
+                }
+            }
+            Toast.makeText(context, "Line added to regex file successfully!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error adding line: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
 }
 
-fun saveRegexesToFile(context: Context, regexMap: Map<String, Regex>) {
-    val file = File(context.filesDir, "regex.txt")
-    FileOutputStream(file).use { output ->
-        regexMap.forEach { (name, regex) ->
-            output.write("$name:${regex.pattern}\n".toByteArray())
-        }
-    }
-}
