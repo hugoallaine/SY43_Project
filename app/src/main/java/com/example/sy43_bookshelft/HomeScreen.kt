@@ -23,7 +23,11 @@ fun HomeScreen(navController: NavHostController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painter = painterResource(id = R.drawable.logo), contentDescription = "logo")
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "logo",
+            modifier = Modifier.size(300.dp)
+        )
         Button(
             onClick = { navController.navigate("scanner") },
             modifier = Modifier

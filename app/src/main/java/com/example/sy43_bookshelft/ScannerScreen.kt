@@ -18,6 +18,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -44,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -148,7 +151,9 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                             .border(2.dp, Color.White)
                             .align(Alignment.TopCenter),
                         contentAlignment = Alignment.Center
-                    ) {}
+                    ) {
+
+                    }
 
                     // Error message or success
                     if (errorMessage.isNotEmpty()) {
@@ -190,52 +195,60 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                             .align(Alignment.BottomCenter),
                         contentAlignment = Alignment.Center // Align button to the center
                     ) {
-                        Button(onClick = {
-                            val file = File(context.cacheDir, "image.jpg")
-                            val outputOptions = ImageCapture.OutputFileOptions.Builder(file).build()
-                            imageCapture?.takePicture(
-                                outputOptions,
-                                cameraExecutor,
-                                object : ImageCapture.OnImageSavedCallback {
-                                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                                        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-                                        val croppedBitmap = Bitmap.createBitmap(
-                                            bitmap,
-                                            0,
-                                            bitmap.height / 3,
-                                            bitmap.width,
-                                            bitmap.height / 3
-                                        )
-                                        val image = InputImage.fromBitmap(croppedBitmap, 0)
-                                        val recognizer = TextRecognition.getClient(
-                                            TextRecognizerOptions.DEFAULT_OPTIONS)
-                                        recognizer.process(image)
-                                            .addOnSuccessListener { visionText ->
-                                                scannedText = visionText.text
-                                                errorMessage = ""
-                                                if (scannedText == "") {
-                                                    errorMessage = "No books detected!"
-                                                } else {
-                                                    orderedResults = CheckOrder(visionText.text)
-                                                    if (orderedResults.any { !it.second }) {
-                                                        errorMessage = "Books are not in order!"
+                        Row () {
+                            Button(
+                                onClick = { navController.popBackStack() }
+                            ) {
+                                Text(text = stringResource(id = R.string.back_btn))
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Button(onClick = {
+                                val file = File(context.cacheDir, "image.jpg")
+                                val outputOptions = ImageCapture.OutputFileOptions.Builder(file).build()
+                                imageCapture?.takePicture(
+                                    outputOptions,
+                                    cameraExecutor,
+                                    object : ImageCapture.OnImageSavedCallback {
+                                        override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                                            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                                            val croppedBitmap = Bitmap.createBitmap(
+                                                bitmap,
+                                                0,
+                                                bitmap.height / 3,
+                                                bitmap.width,
+                                                bitmap.height / 3
+                                            )
+                                            val image = InputImage.fromBitmap(croppedBitmap, 0)
+                                            val recognizer = TextRecognition.getClient(
+                                                TextRecognizerOptions.DEFAULT_OPTIONS)
+                                            recognizer.process(image)
+                                                .addOnSuccessListener { visionText ->
+                                                    scannedText = visionText.text
+                                                    errorMessage = ""
+                                                    if (scannedText == "") {
+                                                        errorMessage = "No books detected!"
+                                                    } else {
+                                                        orderedResults = CheckOrder(visionText.text)
+                                                        if (orderedResults.any { !it.second }) {
+                                                            errorMessage = "Books are not in order!"
+                                                        }
                                                     }
                                                 }
-                                            }
-                                            .addOnFailureListener { e ->
-                                                errorMessage = "Failed to scan text: ${e.message}"
-                                                scannedText = ""
-                                            }
-                                    }
+                                                .addOnFailureListener { e ->
+                                                    errorMessage = "Failed to scan text: ${e.message}"
+                                                    scannedText = ""
+                                                }
+                                        }
 
-                                    override fun onError(exception: ImageCaptureException) {
-                                        errorMessage = "Image capture failed: ${exception.message}"
-                                        scannedText = ""
+                                        override fun onError(exception: ImageCaptureException) {
+                                            errorMessage = "Image capture failed: ${exception.message}"
+                                            scannedText = ""
+                                        }
                                     }
-                                }
-                            )
-                        }) {
-                            Text("Capture Image")
+                                )
+                            }) {
+                                Text(text = stringResource(id = R.string.take_picture_btn))
+                            }
                         }
                     }
                 }
@@ -245,7 +258,17 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                Text("Please rotate your device to landscape mode")
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(stringResource(id = R.string.rotate_warning))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { navController.popBackStack() }) {
+                        Text(text = stringResource(id = R.string.back_btn))
+                    }
+                }
             }
         }
     }

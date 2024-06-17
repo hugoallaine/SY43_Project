@@ -48,14 +48,17 @@ dependencies {
     implementation("com.google.mlkit:text-recognition:16.0.0")
     implementation("androidx.activity:activity-compose:1.3.1")
     implementation("androidx.compose.ui:ui:1.4.2")
-    implementation("androidx.compose.material3:material3:1.0.0-alpha14")
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.1")
+    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.3.0-beta03")
     implementation("androidx.compose.ui:ui-tooling-preview:1.4.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.compose.ui:ui-graphics:1.4.2")
     implementation("androidx.compose.foundation:foundation:1.4.2")
     implementation("androidx.compose.material:material:1.4.2")
     implementation("androidx.startup:startup-runtime:1.1.1")
-    implementation(libs.androidx.navigation.compose) // Ajout de androidx.startup
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.material3.android) // Ajout de androidx.startup
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
