@@ -42,5 +42,12 @@ fun HomeScreen(navController: NavHostController) {
         ) {
             Text(text = stringResource(id = R.string.list_btn_home))
         }
+        Button(
+            onClick = { navController.navigate("classification") },
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(text = stringResource(id = R.string.classification_btn_home))
+        }
     }
 }

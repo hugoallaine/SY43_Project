@@ -67,8 +67,12 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import android.content.Context
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
-fun CheckOrder(text: String, classification: String): List<Pair<String, Boolean>> {
+fun CheckOrder(text: String, classification: String, regexMap: Map<String, Regex>): List<Pair<String, Boolean>> {
+
     val callNumbers = text.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
     if (callNumbers.isEmpty()) return emptyList()
 
@@ -76,36 +80,40 @@ fun CheckOrder(text: String, classification: String): List<Pair<String, Boolean>
     for (i in 0 until callNumbers.size - 1) {
         val current = callNumbers[i]
         val next = callNumbers[i + 1]
-        result.add(Pair(current, isInCorrectOrder(current, next, classification)))
+        result.add(Pair(current, isInCorrectOrder(current, next, classification, regexMap)))
     }
     result.add(Pair(callNumbers.last(), true))
     return result
 }
 
-fun isInCorrectOrder(callNumber1: String, callNumber2: String, classification: String): Boolean {
-    val pattern = when (classification) {
-        "LCC" -> Regex("([A-Z]{1,2})(\\d{1,4}(\\.\\d+|,\\d+)?)(\\.([A-Z]{1,3}))?")
-        "Romans Graphique" -> Regex("([0-9]{3})(\\.\\d+)?") // Example regex for Dewey Decimal
-        else -> Regex("([A-Z]{1,2})(\\d{1,4}(\\.\\d+|,\\d+)?)(\\.([A-Z]{1,3}))?")
+fun isInCorrectOrder(callNumber1: String, callNumber2: String, classification: String, regexMap: Map<String, Regex>): Boolean {
+    val pattern = regexMap[classification] ?: return false
+
+    println("Regex use : $pattern")
+    val cleanedCallNumber1 = callNumber1.replace(" ", "").replace(Regex("(\\.([A-Z]{1,3}))?")) {
+        it.value.takeWhile { ch -> ch != '.' } + it.value.takeLastWhile { ch -> ch.isLetter() }.take(3)
+    }
+    val cleanedCallNumber2 = callNumber2.replace(" ", "").replace(Regex("(\\.([A-Z]{1,3}))?")) {
+        it.value.takeWhile { ch -> ch != '.' } + it.value.takeLastWhile { ch -> ch.isLetter() }.take(3)
     }
 
-    val match1 = pattern.find(callNumber1)
-    val match2 = pattern.find(callNumber2)
+    val match1 = pattern.find(cleanedCallNumber1)
+    val match2 = pattern.find(cleanedCallNumber2)
 
     if (match1 == null || match2 == null) {
-        println("Invalid format: $callNumber1 or $callNumber2")
+        println("Invalid format: $cleanedCallNumber1 or $cleanedCallNumber2")
         return false
     }
 
-    val class1 = match1.groupValues[1].replace(" ", "")
-    val number1 = match1.groupValues[2].replace(",", ".").replace(" ", "")
-    val cutter1 = match1.groupValues[5].replace(" ", "").take(3)
+    val class1 = match1.groupValues[1]
+    val number1 = match1.groupValues[2].replace(",", ".")
+    val cutter1 = match1.groupValues[5]
 
-    val class2 = match2.groupValues[1].replace(" ", "")
-    val number2 = match2.groupValues[2].replace(",", ".").replace(" ", "")
-    val cutter2 = match2.groupValues[5].replace(" ", "").take(3)
+    val class2 = match2.groupValues[1]
+    val number2 = match2.groupValues[2].replace(",", ".")
+    val cutter2 = match2.groupValues[5]
 
-    println("Comparing: $callNumber1 vs $callNumber2")
+    println("Comparing: $cleanedCallNumber1 vs $cleanedCallNumber2")
     println("Class: $class1 vs $class2")
     println("Number: $number1 vs $number2")
     println("Cutter: $cutter1 vs $cutter2")
@@ -126,9 +134,21 @@ fun isInCorrectOrder(callNumber1: String, callNumber2: String, classification: S
 }
 
 
-
-
-
+fun loadRegexFromFile(context: Context): Map<String, Regex> {
+    val regexMap = mutableMapOf<String, Regex>()
+    val inputStream = context.resources.openRawResource(R.raw.regex)
+    BufferedReader(InputStreamReader(inputStream)).use { reader ->
+        reader.forEachLine { line ->
+            val parts = line.split(":")
+            if (parts.size == 2) {
+                val name = parts[0]
+                val regex = parts[1].toRegex()
+                regexMap[name] = regex
+            }
+        }
+    }
+    return regexMap
+}
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -138,7 +158,9 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
     var orderedResults by mutableStateOf<List<Pair<String, Boolean>>>(emptyList())
     var expanded by remember { mutableStateOf(false) }
     var selectedClassification by remember { mutableStateOf("LCC") }
-    val classifications = listOf("LCC", "Dewey", "Other") // Add other classifications as needed
+    val context = LocalContext.current
+    val classifications = loadRegexFromFile(context).keys.toList()
+    val regexMap = loadRegexFromFile(context)
 
     val PREVIEW_ASPECT_RATIO = AspectRatio.RATIO_16_9
     val configuration = LocalConfiguration.current
@@ -290,7 +312,7 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                                                     if (scannedText == "") {
                                                         errorMessage = "No books detected!"
                                                     } else {
-                                                        orderedResults = CheckOrder(visionText.text, selectedClassification)
+                                                        orderedResults = CheckOrder(visionText.text, selectedClassification, regexMap)
                                                         if (orderedResults.any { !it.second }) {
                                                             errorMessage = "Books are not in order!"
                                                         }

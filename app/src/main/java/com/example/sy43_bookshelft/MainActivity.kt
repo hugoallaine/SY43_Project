@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
                         composable("home") { HomeScreen(navController) }
                         composable("scanner") { ScannerScreen(navController, cameraExecutor) }
                         composable("list") { ListScreen(navController) }
+                        composable("classification") { ClassificationScreen(navController) }
                     }
                 }
             }

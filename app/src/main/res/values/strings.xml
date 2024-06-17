@@ -5,6 +5,7 @@
     <string name="recognized_text">Recognized Text will appear here</string>
     <string name="scan_btn_home">Scan bookshelf</string>
     <string name="list_btn_home">Quotation list</string>
+    <string name="classification_btn_home">Custom Regex</string>
     <string name="back_btn">Back</string>
     <string name="rotate_warning">Please rotate your phone in landscape mode</string>
     <string name="take_picture_btn">Capture Image</string>
