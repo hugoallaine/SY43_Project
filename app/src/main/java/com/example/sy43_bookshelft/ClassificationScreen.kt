@@ -39,7 +39,7 @@ fun ClassificationScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text("Modifier les classifications", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
+            Text("Edit classifications", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
 
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(classifications.toList()) { (name, regex) ->
@@ -49,9 +49,11 @@ fun ClassificationScreen(navController: NavHostController) {
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
                     ) {
-                        Text(name, modifier = Modifier.weight(1f))
+                        Text("$name :", modifier = Modifier.weight(1f))
                         Text(regex.pattern, modifier = Modifier.weight(2f))
                     }
+                    // draw a line between each item
+                    HorizontalDivider()
                 }
             }
 
@@ -68,7 +70,7 @@ fun ClassificationScreen(navController: NavHostController) {
                 contentAlignment = Alignment.BottomEnd
             ) {
                 Button(onClick = { showModal = true }) {
-                    Text("Ajouter une classification")
+                    Text("Add a new classification")
                 }
             }
         }
@@ -83,9 +85,9 @@ fun ClassificationScreen(navController: NavHostController) {
                             put(name, Regex(regex))
                         }
                         saveRegexesToFile(context, classifications)
-                        errorMessage = "Classification ajoutée avec succès"
+                        errorMessage = "Classification added successfully!"
                     } catch (e: Exception) {
-                        errorMessage = "Modèle de regex invalide"
+                        errorMessage = "Wrong regex format"
                     }
                 }
             )
@@ -124,7 +126,7 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                 }
             }
 
-            Text("Nouvelle classification", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
+            Text("New classification", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
 
             BasicTextField(
                 value = classificationName,
@@ -136,7 +138,7 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                 singleLine = true,
                 decorationBox = { innerTextField ->
                     if (classificationName.isEmpty()) {
-                        Text("Entrer le nom de la classification", color = Color.Gray)
+                        Text("Entrer the name of the classification", color = Color.Gray)
                     }
                     innerTextField()
                 }
@@ -144,7 +146,7 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Configurer la regex", fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp))
+            Text("Configure regex", fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp))
 
             LazyColumn(
                 modifier = Modifier
@@ -161,7 +163,7 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Partie ${index + 1}: ", modifier = Modifier.weight(1f))
+                            Text("Part ${index + 1}: ", modifier = Modifier.weight(1f))
                             DropdownWithLabel(
                                 label = "Min",
                                 options = (0..9).map { it.toString() },
@@ -185,10 +187,10 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                             DropdownWithLabel(
                                 label = "Type",
                                 options = listOf(
-                                    "Lettres [A-Z]",
-                                    "Chiffres [0-9]",
-                                    "Lettres\n ou Chiffres \n[A-Z0-9]",
-                                    "Virgule\n ou Point"
+                                    "Letters [A-Z]",
+                                    "Digits [0-9]",
+                                    "Letters\n Or Digits \n[A-Z0-9]",
+                                    "Comma\n or Dot"
                                 ),
                                 selectedOption = part.type,
                                 onOptionSelected = { selected ->
@@ -198,13 +200,13 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                                 }
                             )
                             DropdownWithLabel(
-                                label = "Facultatif",
-                                options = listOf("Oui", "Non"),
-                                selectedOption = if (part.optional) "Oui" else "Non",
+                                label = "Optional",
+                                options = listOf("Yes", "No"),
+                                selectedOption = if (part.optional) "Yes" else "No",
                                 onOptionSelected = { selected ->
                                     regexParts = regexParts.toMutableList().apply {
                                         this[index] =
-                                            this[index].copy(optional = selected == "Oui")
+                                            this[index].copy(optional = selected == "Yes")
                                     }
                                 }
                             )
@@ -212,25 +214,27 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                     }
 
                 }
-            }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(onClick = onClose, modifier = Modifier.padding(end = 8.dp)) {
+                            Text("Cancel")
+                        }
+                        Button(onClick = {
+                            if (classificationName.isNotEmpty() && regexParts.all { it.isValid() }) {
+                                println("Save button clicked")
+                                val regex = regexParts.joinToString("") { it.toRegexPart() }
+                                onSave(classificationName, regex)
+                                onClose()
+                            }
+                        }) {
+                            Text("Save")
+                        }
+                    } // End of button row
+                }} // End of LazyColumn
 
-            Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(onClick = onClose, modifier = Modifier.padding(end = 8.dp)) {
-                    Text("Annuler")
-                }
-                Button(onClick = {
-                    if (classificationName.isNotEmpty() && regexParts.all { it.isValid() }) {
-                        val regex = regexParts.joinToString("") { it.toRegexPart() }
-                        onSave(classificationName, regex)
-                        onClose()
-                    }
-                }) {
-                    Text("Sauvegarder")
-                }
-            }
 
         }
     }
