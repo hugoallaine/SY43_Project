@@ -234,6 +234,14 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.wrapContentWidth()
                         ) {
+                            Button(
+                                onClick = { navController.popBackStack() }
+                            ) {
+                                Text(text = stringResource(id = R.string.back_btn))
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
                             // Dropdown for classification selection
                             Box(
                                 modifier = Modifier
