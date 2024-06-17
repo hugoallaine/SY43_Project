@@ -134,16 +134,18 @@ fun isInCorrectOrder(callNumber1: String, callNumber2: String, classification: S
 }
 
 
-fun loadRegexFromFile(context: Context): Map<String, Regex> {
+fun loadRegexFromInternalFile(context: Context): Map<String, Regex> {
     val regexMap = mutableMapOf<String, Regex>()
-    val inputStream = context.resources.openRawResource(R.raw.regex)
-    BufferedReader(InputStreamReader(inputStream)).use { reader ->
-        reader.forEachLine { line ->
-            val parts = line.split(":")
-            if (parts.size == 2) {
-                val name = parts[0]
-                val regex = parts[1].toRegex()
-                regexMap[name] = regex
+    val file = File(context.filesDir, "regex.txt")
+    if (file.exists()) {
+        BufferedReader(InputStreamReader(file.inputStream())).use { reader ->
+            reader.forEachLine { line ->
+                val parts = line.split(":")
+                if (parts.size == 2) {
+                    val name = parts[0]
+                    val regex = parts[1].toRegex()
+                    regexMap[name] = regex
+                }
             }
         }
     }
@@ -159,8 +161,8 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
     var expanded by remember { mutableStateOf(false) }
     var selectedClassification by remember { mutableStateOf("LCC") }
     val context = LocalContext.current
-    val classifications = loadRegexFromFile(context).keys.toList()
-    val regexMap = loadRegexFromFile(context)
+    val classifications = loadRegexFromInternalFile(context).keys.toList()
+    val regexMap = loadRegexFromInternalFile(context)
 
     val PREVIEW_ASPECT_RATIO = AspectRatio.RATIO_16_9
     val configuration = LocalConfiguration.current

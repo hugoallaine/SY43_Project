@@ -1,6 +1,7 @@
 package com.example.sy43_bookshelft
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,9 +21,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import java.io.BufferedReader
+import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
+import java.io.FileWriter
 import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 
 @Composable
 fun ClassificationScreen(navController: NavHostController) {
@@ -87,7 +91,7 @@ fun ClassificationScreen(navController: NavHostController) {
                         saveRegexesToFile(context, classifications)
                         errorMessage = "Classification added successfully!"
                     } catch (e: Exception) {
-                        errorMessage = "Wrong regex format"
+                        errorMessage = "Wrong regex format $regex"
                     }
                 }
             )
@@ -223,11 +227,13 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                             Text("Cancel")
                         }
                         Button(onClick = {
-                            if (classificationName.isNotEmpty() && regexParts.all { it.isValid() }) {
+                            if (classificationName.isNotEmpty()) {
                                 println("Save button clicked")
                                 val regex = regexParts.joinToString("") { it.toRegexPart() }
                                 onSave(classificationName, regex)
                                 onClose()
+                            } else {
+                                println("Invalid input")
                             }
                         }) {
                             Text("Save")
@@ -283,37 +289,76 @@ data class RegexPart(
 
     fun toRegexPart(): String {
         val typePattern = when (type) {
-            "Lettres [A-Z]" -> "[A-Z]"
-            "Chiffres [0-9]" -> "\\d"
-            "Lettres ou Chiffres [A-Z0-9]" -> "[A-Z\\d]"
+            "Letters [A-Z]" -> "[A-Z]"
+            "Digits [0-9]" -> "[0-9]"
+            "Letters Or Digits [A-Z0-9]" -> "[A-Z0-9]"
+            "Comma or Dot" -> "[.,]"
             else -> ""
         }
         val optionalPart = if (optional) "?" else ""
-        return "$typePattern{$min,$max}$optionalPart"
+        if(typePattern.isNotEmpty()){
+            return "($typePattern{$min,$max}$optionalPart)"
+        }
+        return ""
     }
 }
 
 fun loadRegexesFromFile(context: Context): Map<String, Regex> {
     val regexMap = mutableMapOf<String, Regex>()
-    val inputStream = context.resources.openRawResource(R.raw.regex)
-    BufferedReader(InputStreamReader(inputStream)).use { reader ->
-        reader.forEachLine { line ->
-            val parts = line.split(":")
-            if (parts.size == 2) {
-                val name = parts[0]
-                val regex = parts[1].toRegex()
-                regexMap[name] = regex
+
+    // Check if the internal storage file exists
+    val fileName = "regex.txt"
+    val internalFile = context.getFileStreamPath(fileName)
+    if (internalFile.exists()) {
+        try {
+            val inputStream = context.openFileInput(fileName)
+            BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                reader.forEachLine { line ->
+                    val parts = line.split(":")
+                    if (parts.size == 2) {
+                        val name = parts[0]
+                        val regex = parts[1].toRegex()
+                        regexMap[name] = regex
+                    }
+                }
             }
+        } catch (e: Exception) {
+            // Handle exception if there's an issue opening the internal file
+            e.printStackTrace()
+        }
+    } else {
+        // If the internal file doesn't exist, fall back to raw resource
+        try {
+            val inputStream = context.resources.openRawResource(R.raw.regex)
+            BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                reader.forEachLine { line ->
+                    val parts = line.split(":")
+                    if (parts.size == 2) {
+                        val name = parts[0]
+                        val regex = parts[1].toRegex()
+                        regexMap[name] = regex
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
-    return regexMap
+
+        return regexMap
+    }
+fun saveRegexesToFile(context: Context, regexMap: Map<String, Regex>) {
+        try {
+            val outputStream = context.openFileOutput("regex.txt", Context.MODE_APPEND) // Consider using MODE_PRIVATE if desired
+            val writer = BufferedWriter(OutputStreamWriter(outputStream))
+            writer.use { writer ->
+                regexMap.forEach { (name, regex) ->
+                    writer.appendln("$name: ${regex.pattern}")
+                }
+            }
+            Toast.makeText(context, "Line added to regex file successfully!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error adding line: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
 }
 
-fun saveRegexesToFile(context: Context, regexMap: Map<String, Regex>) {
-    val file = File(context.filesDir, "regex.txt")
-    FileOutputStream(file).use { output ->
-        regexMap.forEach { (name, regex) ->
-            output.write("$name:${regex.pattern}\n".toByteArray())
-        }
-    }
-}
