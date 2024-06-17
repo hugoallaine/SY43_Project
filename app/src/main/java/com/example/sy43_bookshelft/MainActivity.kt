@@ -12,6 +12,10 @@ import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.sy43_bookshelft.csv.QuotationObj
+import com.example.sy43_bookshelft.csv.checkCsvFile
+import com.example.sy43_bookshelft.csv.createCsvFile
+import com.example.sy43_bookshelft.csv.csvFile
 import com.example.sy43_bookshelft.ui.theme.MainTheme
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -21,6 +25,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (checkCsvFile(this, csvFile)) {
+            QuotationObj.loadQuotations(this, csvFile)
+            println("CSV file loaded")
+        } else {
+            println("CSV file not found.")
+            createCsvFile(this, csvFile)
+            QuotationObj.loadQuotations(this, csvFile)
+            println("CSV file created and loaded")
+        }
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         ActivityCompat.requestPermissions(

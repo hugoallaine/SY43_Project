@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     kotlin("android") version "1.9.0"
-    id("kotlin-android")
 }
 
 android {
@@ -62,9 +61,6 @@ dependencies {
     implementation("androidx.startup:startup-runtime:1.1.1")
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material3.android) // Ajout de androidx.startup
-    implementation("androidx.room:room-runtime:2.4.2")
-    implementation("androidx.room:room-ktx:2.4.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")

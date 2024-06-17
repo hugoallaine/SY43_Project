@@ -1,6 +1,5 @@
 package com.example.sy43_bookshelft
 
-import android.app.Application
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,24 +11,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.sy43_bookshelft.db.QuotationDatabase
-import com.example.sy43_bookshelft.db.Quotation
-import com.example.sy43_bookshelft.db.QuotationRepository
-import com.example.sy43_bookshelft.db.QuotationViewModel
-import com.example.sy43_bookshelft.db.QuotationViewModelFactory
+import com.example.sy43_bookshelft.csv.Quotation
+import com.example.sy43_bookshelft.csv.QuotationObj.quotationList
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(navController: NavHostController) {
-    val context = LocalContext.current.applicationContext as Application
-    val quotationDao = QuotationDatabase.getDatabase(context).quotationDao()
-    val repository = QuotationRepository(quotationDao)
-    val factory = QuotationViewModelFactory(context, repository)
-    val viewModel: QuotationViewModel = viewModel(factory = factory)
-
-    val quotations by viewModel.quotations.collectAsState()
+    val context = LocalContext.current
 
     Column {
         TopAppBar(
@@ -51,25 +43,10 @@ fun ListScreen(navController: NavHostController) {
                 }
             },
         )
-
-        var searchQuery by remember { mutableStateOf("") }
-
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { newQuery ->
-                searchQuery = newQuery
-                viewModel.searchQuotations(newQuery)
-            },
-            label = { Text("Search Quotations") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        )
-
         LazyColumn(
             modifier = Modifier.padding(16.dp)
         ) {
-            items(quotations) { quotation ->
+            items(quotationList) { quotation ->
                 QuotationItem(quotation)
             }
         }
@@ -78,6 +55,8 @@ fun ListScreen(navController: NavHostController) {
 
 @Composable
 fun QuotationItem(quotation: Quotation) {
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -85,8 +64,9 @@ fun QuotationItem(quotation: Quotation) {
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = quotation.value)
-            Text(text = "Added at: ${quotation.added_at}")
+            Text(text = quotation.value, style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = dateFormat.format(quotation.date), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
