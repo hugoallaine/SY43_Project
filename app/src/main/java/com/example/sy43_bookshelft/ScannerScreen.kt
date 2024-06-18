@@ -74,11 +74,13 @@ import java.util.Date
 
 fun CheckOrder(text: String, classification: String, regexMap: Map<String, Regex>): List<Pair<String, Boolean>> {
 
+    println("class : $classification")
     val callNumbers = text.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
     if (callNumbers.isEmpty()) return emptyList()
-
+    println("regex : $regexMap")
     val result = mutableListOf<Pair<String, Boolean>>()
     for (i in 0 until callNumbers.size - 1) {
+        println("Check order")
         val current = callNumbers[i]
         val next = callNumbers[i + 1]
         result.add(Pair(current, isInCorrectOrder(current, next, classification, regexMap)))
@@ -86,17 +88,18 @@ fun CheckOrder(text: String, classification: String, regexMap: Map<String, Regex
     result.add(Pair(callNumbers.last(), true))
     return result
 }
-
 fun isInCorrectOrder(callNumber1: String, callNumber2: String, classification: String, regexMap: Map<String, Regex>): Boolean {
+    println("Regex used: ${regexMap[classification]}")
     val pattern = regexMap[classification] ?: return false
 
-    println("Regex use : $pattern")
     val cleanedCallNumber1 = callNumber1.replace(" ", "").replace(Regex("(\\.([A-Z]{1,3}))?")) {
         it.value.takeWhile { ch -> ch != '.' } + it.value.takeLastWhile { ch -> ch.isLetter() }.take(3)
     }
     val cleanedCallNumber2 = callNumber2.replace(" ", "").replace(Regex("(\\.([A-Z]{1,3}))?")) {
         it.value.takeWhile { ch -> ch != '.' } + it.value.takeLastWhile { ch -> ch.isLetter() }.take(3)
     }
+
+    println("Cleaned call numbers: $cleanedCallNumber1, $cleanedCallNumber2")
 
     val match1 = pattern.find(cleanedCallNumber1)
     val match2 = pattern.find(cleanedCallNumber2)
@@ -106,38 +109,40 @@ fun isInCorrectOrder(callNumber1: String, callNumber2: String, classification: S
         return false
     }
 
-    val class1 = match1.groupValues[1]
-    val number1 = match1.groupValues[2].replace(",", ".")
-    val cutter1 = match1.groupValues[5]
+    println("Match groups: ${match1.groupValues}, ${match2.groupValues}")
 
-    val class2 = match2.groupValues[1]
-    val number2 = match2.groupValues[2].replace(",", ".")
-    val cutter2 = match2.groupValues[5]
+    // Extract all groups and compare them
+    val groupCount = maxOf(match1.groupValues.size, match2.groupValues.size)
 
-    println("Comparing: $cleanedCallNumber1 vs $cleanedCallNumber2")
-    println("Class: $class1 vs $class2")
-    println("Number: $number1 vs $number2")
-    println("Cutter: $cutter1 vs $cutter2")
+    for (i in 1 until groupCount) {
+        val group1 = match1.groupValues.getOrNull(i) ?: ""
+        val group2 = match2.groupValues.getOrNull(i) ?: ""
 
-    if (class1 != class2) {
-        return class1 < class2
+        // Determine the type of group and compare accordingly
+        val comparisonResult = compareGroups(group1, group2)
+        if (comparisonResult != 0) {
+            return comparisonResult < 0
+        }
     }
 
-    if (number1.toDouble() != number2.toDouble()) {
-        return number1.toDouble() < number2.toDouble()
-    }
-
-    if (cutter1 != cutter2) {
-        return (cutter1 ?: "") < (cutter2 ?: "")
-    }
-
-    return true // Si tous les autres composants sont identiques, les considérer dans le bon ordre.
+    return true // If all groups are equal, consider them in correct order
 }
 
+fun compareGroups(group1: String, group2: String): Int {
+    return when {
+        group1.isEmpty() && group2.isEmpty() -> 0
+        group1.isEmpty() -> -1
+        group2.isEmpty() -> 1
+        group1.all { it.isDigit() } && group2.all { it.isDigit() } -> group1.toInt().compareTo(group2.toInt())
+        group1.all { it.isLetter() } && group2.all { it.isLetter() } -> group1.compareTo(group2)
+        else -> group1.compareTo(group2)
+    }
+}
 
 fun loadRegexFromInternalFile(context: Context): Map<String, Regex> {
     val regexMap = mutableMapOf<String, Regex>()
     val file = File(context.filesDir, "regex.txt")
+
     if (file.exists()) {
         BufferedReader(InputStreamReader(file.inputStream())).use { reader ->
             reader.forEachLine { line ->
@@ -149,9 +154,25 @@ fun loadRegexFromInternalFile(context: Context): Map<String, Regex> {
                 }
             }
         }
+    } else {
+        // Load from raw resources if the file doesn't exist
+        val inputStream = context.resources.openRawResource(R.raw.regex)
+        BufferedReader(InputStreamReader(inputStream)).use { reader ->
+            reader.forEachLine { line ->
+                val parts = line.split(":")
+                if (parts.size == 2) {
+                    val name = parts[0]
+                    val regex = parts[1].toRegex()
+                    regexMap[name] = regex
+                }
+            }
+        }
     }
+
+    println("load regex : $regexMap")
     return regexMap
 }
+
 
 
 
@@ -166,7 +187,7 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
     var selectedClassification by remember { mutableStateOf("LCC") }
     val context = LocalContext.current
     val classifications = loadRegexFromInternalFile(context).keys.toList()
-    val regexMap = loadRegexFromInternalFile(context)
+    var regexMap = loadRegexFromInternalFile(context)
 
     val PREVIEW_ASPECT_RATIO = AspectRatio.RATIO_16_9
     val configuration = LocalConfiguration.current
@@ -318,9 +339,12 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                                                     if (scannedText == "") {
                                                         errorMessage = "No books detected!"
                                                     } else {
+                                                        regexMap = loadRegexFromInternalFile(context)
                                                         orderedResults = CheckOrder(visionText.text, selectedClassification, regexMap)
                                                         if (orderedResults.any { !it.second }) {
                                                             errorMessage = "Books are not in order!"
+                                                        } else {
+                                                            errorMessage = ""
                                                             orderedResults.map {
                                                                 quotationList.add(Quotation(it.first, Date()))
                                                             }
