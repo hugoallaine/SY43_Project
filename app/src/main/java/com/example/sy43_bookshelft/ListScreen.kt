@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.sy43_bookshelft.csv.Quotation
@@ -144,11 +145,25 @@ fun ListScreen(navController: NavHostController) {
                     }
                 }
             )
-            LazyColumn(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                items(quotationList) { quotation ->
-                    QuotationItem(navController, quotation)
+            if(quotationList.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.empty_list),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    items(quotationList) { quotation ->
+                        QuotationItem(navController, quotation)
+                    }
                 }
             }
         }

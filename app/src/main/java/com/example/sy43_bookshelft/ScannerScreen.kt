@@ -65,7 +65,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import android.content.Context
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import com.example.sy43_bookshelft.csv.Quotation
 import com.example.sy43_bookshelft.csv.QuotationObj.quotationList
 import com.example.sy43_bookshelft.csv.writeCsv
@@ -342,7 +341,7 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                                     }
                                 )
                             }) {
-                                Text("Capture Image")
+                                Text(stringResource(id = R.string.take_picture_btn))
                             }
                         }
                     }
