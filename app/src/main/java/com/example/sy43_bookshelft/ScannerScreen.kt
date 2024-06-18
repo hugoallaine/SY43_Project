@@ -68,8 +68,11 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import android.content.Context
+import com.example.sy43_bookshelft.csv.Quotation
+import com.example.sy43_bookshelft.csv.writeCsv
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.util.Date
 
 fun CheckOrder(text: String, classification: String, regexMap: Map<String, Regex>): List<Pair<String, Boolean>> {
 
@@ -151,6 +154,9 @@ fun loadRegexFromInternalFile(context: Context): Map<String, Regex> {
     }
     return regexMap
 }
+
+
+
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -317,6 +323,10 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                                                         orderedResults = CheckOrder(visionText.text, selectedClassification, regexMap)
                                                         if (orderedResults.any { !it.second }) {
                                                             errorMessage = "Books are not in order!"
+                                                            val quotations = orderedResults.map {
+                                                                Quotation(it.first, Date())
+                                                            }
+                                                            writeCsv(context, quotations)
                                                         }
                                                     }
                                                 }

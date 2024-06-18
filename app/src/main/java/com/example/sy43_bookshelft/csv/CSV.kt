@@ -48,10 +48,12 @@ fun readCsv(context: Context, fileName: String): List<Quotation> {
     return quotationList
 }
 
-fun writeCsv(context: Context, fileName: String, data: List<Quotation>) {
+
+
+fun writeCsv(context: Context, data: List<Quotation>) {
     println("Writing CSV file...")
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    val outputStream = context.openFileOutput(fileName, Context.MODE_APPEND)
+    val outputStream = context.openFileOutput(csvFile, Context.MODE_APPEND)
     val writer = BufferedWriter(OutputStreamWriter(outputStream))
     writer.use { writer ->
         data.forEach { quotation ->
@@ -59,5 +61,5 @@ fun writeCsv(context: Context, fileName: String, data: List<Quotation>) {
             writer.write(line)
         }
     }
-    loadQuotations(context, fileName)
+    loadQuotations(context, csvFile)
 }

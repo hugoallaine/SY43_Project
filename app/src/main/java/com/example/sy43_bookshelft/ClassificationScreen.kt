@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -53,7 +54,7 @@ fun ClassificationScreen(navController: NavHostController) {
                 ),
                 title = {
                     Text(
-                        text = "Edit classifications"
+                        text = "Classifications"
                     )
                 },
                 navigationIcon = {
@@ -80,6 +81,15 @@ fun ClassificationScreen(navController: NavHostController) {
                     ) {
                         Text("$name :", modifier = Modifier.weight(1f))
                         Text(regex.pattern, modifier = Modifier.weight(2f))
+                        IconButton(onClick = {
+                            deleteClassification(context, name)
+                            classifications = loadRegexesFromFile(context)
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete"
+                            )
+                        }
                     }
                     // draw a line between each item
                     HorizontalDivider()
@@ -167,7 +177,7 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                 singleLine = true,
                 decorationBox = { innerTextField ->
                     if (classificationName.isEmpty()) {
-                        Text("Entrer the name of the classification", color = Color.Gray)
+                        Text("Enter the name of the classification", color = Color.Gray)
                     }
                     innerTextField()
                 }
@@ -218,8 +228,8 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                                 options = listOf(
                                     "Letters [A-Z]",
                                     "Digits [0-9]",
-                                    "Letters\n Or Digits \n[A-Z0-9]",
-                                    "Comma\n or Dot"
+                                    "Letters or Digits [A-Z0-9]",
+                                    "Comma or Dot"
                                 ),
                                 selectedOption = part.type,
                                 onOptionSelected = { selected ->
@@ -241,7 +251,6 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                             )
                         }
                     }
-
                 }
                 item {
                     Row(
@@ -264,9 +273,8 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
                             Text("Save")
                         }
                     } // End of button row
-                }} // End of LazyColumn
-
-
+                }
+            } // End of LazyColumn
         }
     }
 }
@@ -290,7 +298,7 @@ fun DropdownWithLabel(
             Text(selectedOption, color = if (selectedOption.isEmpty()) Color.Gray else Color.Black)
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 options.forEach { option ->
-                    DropdownMenuItem(text =  {
+                    DropdownMenuItem(text = {
                         Text(option)
                     }, onClick = {
                         onOptionSelected(option)
@@ -316,12 +324,12 @@ data class RegexPart(
         val typePattern = when (type) {
             "Letters [A-Z]" -> "[A-Z]"
             "Digits [0-9]" -> "[0-9]"
-            "Letters Or Digits [A-Z0-9]" -> "[A-Z0-9]"
+            "Letters or Digits [A-Z0-9]" -> "[A-Z0-9]"
             "Comma or Dot" -> "[.,]"
             else -> ""
         }
         val optionalPart = if (optional) "?" else ""
-        if(typePattern.isNotEmpty()){
+        if (typePattern.isNotEmpty()) {
             return "($typePattern{$min,$max}$optionalPart)"
         }
         return ""
@@ -370,20 +378,30 @@ fun loadRegexesFromFile(context: Context): Map<String, Regex> {
         }
     }
 
-        return regexMap
-    }
-fun saveRegexesToFile(context: Context, regexMap: Map<String, Regex>) {
-        try {
-            val outputStream = context.openFileOutput("regex.txt", Context.MODE_APPEND) // Consider using MODE_PRIVATE if desired
-            val writer = BufferedWriter(OutputStreamWriter(outputStream))
-            writer.use { writer ->
-                regexMap.forEach { (name, regex) ->
-                    writer.appendln("$name: ${regex.pattern}")
-                }
-            }
-            Toast.makeText(context, "Line added to regex file successfully!", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(context, "Error adding line: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
+    return regexMap
 }
 
+fun saveRegexesToFile(context: Context, regexMap: Map<String, Regex>) {
+    try {
+        val outputStream = context.openFileOutput("regex.txt", Context.MODE_PRIVATE) // Use MODE_PRIVATE to overwrite
+        val writer = BufferedWriter(OutputStreamWriter(outputStream))
+        writer.use { writer ->
+            regexMap.forEach { (name, regex) ->
+                writer.appendln("$name:${regex.pattern}")
+            }
+        }
+        Toast.makeText(context, "Regex file saved successfully!", Toast.LENGTH_SHORT).show()
+    } catch (e: Exception) {
+        Toast.makeText(context, "Error saving file: ${e.message}", Toast.LENGTH_SHORT).show()
+    }
+}
+
+fun deleteClassification(context: Context, name: String) {
+    val regexMap = loadRegexesFromFile(context).toMutableMap()
+    if (regexMap.remove(name) != null) {
+        saveRegexesToFile(context, regexMap)
+        Toast.makeText(context, "Classification deleted successfully!", Toast.LENGTH_SHORT).show()
+    } else {
+        Toast.makeText(context, "Error: Classification not found!", Toast.LENGTH_SHORT).show()
+    }
+}
