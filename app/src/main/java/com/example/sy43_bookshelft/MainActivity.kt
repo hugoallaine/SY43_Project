@@ -19,12 +19,17 @@ import com.example.sy43_bookshelft.ui.theme.MainTheme
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+/**
+ * The main activity of the application.
+ * This activity serves as the entry point of the application and sets up the navigation graph.
+ */
 class MainActivity : ComponentActivity() {
     private lateinit var cameraExecutor: ExecutorService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Check if the CSV file exists
         if (checkCsvFile(this)) {
             QuotationObj.loadQuotations(this)
             println("CSV file loaded")
@@ -36,11 +41,13 @@ class MainActivity : ComponentActivity() {
         }
         cameraExecutor = Executors.newSingleThreadExecutor()
 
+        // Request camera permission
         ActivityCompat.requestPermissions(
             this, arrayOf(Manifest.permission.CAMERA),
             REQUEST_CODE_PERMISSIONS
         )
 
+        // Set the content view using Jetpack Compose
         setContent {
             MainTheme {
                 Surface(color = MaterialTheme.colors.background, modifier = Modifier.fillMaxSize()) {

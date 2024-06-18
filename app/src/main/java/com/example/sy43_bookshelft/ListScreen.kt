@@ -25,6 +25,11 @@ import java.util.Date
 import java.util.Locale
 
 
+/**
+ * Composable function that represents the list screen of the app.
+ *
+ * @param navController The navigation controller used for navigating between screens.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(navController: NavHostController) {
@@ -170,6 +175,12 @@ fun ListScreen(navController: NavHostController) {
     }
 }
 
+/**
+ * Composable function that represents a single quotation item.
+ *
+ * @param navController The navigation controller used for navigating between screens.
+ * @param quotation The quotation object to display.
+ */
 @Composable
 fun QuotationItem(navController: NavHostController, quotation: Quotation) {
     val context = LocalContext.current

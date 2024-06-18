@@ -203,9 +203,10 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                 val context = LocalContext.current
                 val lifecycleOwner = LocalLifecycleOwner.current
                 val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
-
+                
+                // Image capture
                 var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
-
+                
                 Box(modifier = Modifier.fillMaxSize()) {
                     Column(modifier = Modifier.align(Alignment.Center)) {
                         CameraPreview(

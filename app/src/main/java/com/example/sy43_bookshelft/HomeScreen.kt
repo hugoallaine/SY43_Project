@@ -17,6 +17,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 
+/**
+ * Composable function that represents the home screen of the app.
+ *
+ * @param navController The navigation controller used for navigating between screens.
+ */
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val configuration = LocalConfiguration.current
@@ -31,6 +36,11 @@ fun HomeScreen(navController: NavHostController) {
     }
 }
 
+/**
+ * Composable function that defines the layout for the portrait mode of the home screen.
+ *
+ * @param navController The navigation controller used for navigating to different screens.
+ */
 @Composable
 fun PortraitLayout(navController: NavHostController) {
     Column(
@@ -72,6 +82,11 @@ fun PortraitLayout(navController: NavHostController) {
     }
 }
 
+/**
+ * Composable function that represents the landscape layout of the home screen.
+ *
+ * @param navController The navigation controller used for navigating to different destinations.
+ */
 @Composable
 fun LandscapeLayout(navController: NavHostController) {
     Row(

@@ -27,6 +27,11 @@ import java.io.BufferedWriter
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 
+/**
+ * Composable function that represents the Classification Screen.
+ *
+ * @param navController The navigation controller used for navigating between screens.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClassificationScreen(navController: NavHostController) {
@@ -42,6 +47,7 @@ fun ClassificationScreen(navController: NavHostController) {
             modifier = Modifier
                 .fillMaxSize()
         ) {
+            // Top App Bar
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -62,6 +68,7 @@ fun ClassificationScreen(navController: NavHostController) {
                 },
             )
 
+            // List of Classifications
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
@@ -110,6 +117,7 @@ fun ClassificationScreen(navController: NavHostController) {
             }
         }
 
+        // Classification Modal
         if (showModal) {
             ClassificationModal(
                 onClose = { showModal = false },
@@ -130,6 +138,14 @@ fun ClassificationScreen(navController: NavHostController) {
     }
 }
 
+/**
+ * Composable function that displays a modal for classifying items.
+ *
+ * @param onClose Callback function to be called when the modal is closed.
+ * @param onSave Callback function to be called when the save button is clicked. It takes two parameters:
+ *               - classificationName: The name of the classification.
+ *               - regex: The regular expression for the classification.
+ */
 @Composable
 fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
     var classificationName by remember { mutableStateOf("") }
@@ -275,6 +291,14 @@ fun ClassificationModal(onClose: () -> Unit, onSave: (String, String) -> Unit) {
     }
 }
 
+/**
+ * A composable function that displays a dropdown menu with a label.
+ *
+ * @param label The label to display above the dropdown menu.
+ * @param options The list of options to display in the dropdown menu.
+ * @param selectedOption The currently selected option.
+ * @param onOptionSelected The callback function to be called when an option is selected.
+ */
 @Composable
 fun DropdownWithLabel(
     label: String,
@@ -306,16 +330,34 @@ fun DropdownWithLabel(
     }
 }
 
+/**
+ * Represents a part of a regular expression.
+ *
+ * @property min The minimum number of occurrences for this part.
+ * @property max The maximum number of occurrences for this part.
+ * @property type The type of characters allowed in this part.
+ * @property optional Whether this part is optional or not.
+ */
 data class RegexPart(
     val min: String,
     val max: String,
     val type: String,
     val optional: Boolean
 ) {
+    /**
+     * Checks if this RegexPart is valid.
+     *
+     * @return `true` if the minimum, maximum, and type are not empty; `false` otherwise.
+     */
     fun isValid(): Boolean {
         return min.isNotEmpty() && max.isNotEmpty() && type.isNotEmpty()
     }
 
+    /**
+     * Converts this RegexPart to its corresponding regular expression part.
+     *
+     * @return The regular expression part as a string.
+     */
     fun toRegexPart(): String {
         val typePattern = when (type) {
             "Letters [A-Z]" -> "[A-Z]"
@@ -332,6 +374,12 @@ data class RegexPart(
     }
 }
 
+/**
+ * Loads regular expressions from a file and returns them as a map.
+ *
+ * @param context The application context.
+ * @return A map of regular expressions, where the key is the name of the regex and the value is the compiled regex pattern.
+ */
 fun loadRegexesFromFile(context: Context): Map<String, Regex> {
     val regexMap = mutableMapOf<String, Regex>()
 
@@ -377,6 +425,12 @@ fun loadRegexesFromFile(context: Context): Map<String, Regex> {
     return regexMap
 }
 
+/**
+ * Saves the given regular expressions to a file.
+ *
+ * @param context The context of the application.
+ * @param regexMap A map containing the regular expressions to be saved, where the key is the name of the regex and the value is the regex pattern.
+ */
 fun saveRegexesToFile(context: Context, regexMap: Map<String, Regex>) {
     try {
         val outputStream = context.openFileOutput("regex.txt", Context.MODE_PRIVATE) // Use MODE_PRIVATE to overwrite
@@ -392,6 +446,12 @@ fun saveRegexesToFile(context: Context, regexMap: Map<String, Regex>) {
     }
 }
 
+/**
+ * Deletes a classification from the regex map and saves the updated map to a file.
+ *
+ * @param context The context of the application.
+ * @param name The name of the classification to be deleted.
+ */
 fun deleteClassification(context: Context, name: String) {
     val regexMap = loadRegexesFromFile(context).toMutableMap()
     if (regexMap.remove(name) != null) {
