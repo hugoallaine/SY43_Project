@@ -5,9 +5,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -145,14 +147,15 @@ fun ListScreen(navController: NavHostController) {
             modifier = Modifier.padding(16.dp)
         ) {
             items(quotationList) { quotation ->
-                QuotationItem(quotation)
+                QuotationItem(navController, quotation)
             }
         }
     }
 }
 
 @Composable
-fun QuotationItem(quotation: Quotation) {
+fun QuotationItem(navController: NavHostController, quotation: Quotation) {
+    val context = LocalContext.current
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     Card(
@@ -161,10 +164,34 @@ fun QuotationItem(quotation: Quotation) {
             .padding(vertical = 4.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = quotation.value, style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = dateFormat.format(quotation.date), style = MaterialTheme.typography.bodyMedium)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(1.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = quotation.value, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = dateFormat.format(quotation.date), style = MaterialTheme.typography.bodyMedium)
+            }
+            IconButton(
+                onClick = {
+                    quotationList.remove(quotation)
+                    writeCsv(context, quotationList)
+                    navController.popBackStack()
+                    navController.navigate("list")
+                },
+                modifier = Modifier
+                    .padding(start = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Delete",
+                    tint = Color.Red
+                )
+            }
         }
     }
 }

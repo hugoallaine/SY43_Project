@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SY43 Bookshelf</string>
+    <string name="app_name">LCChecker</string>
     <string name="image_desc">Image Preview</string>
     <string name="capture">Capture Image</string>
     <string name="recognized_text">Recognized Text will appear here</string>

@@ -87,7 +87,8 @@ fun ClassificationScreen(navController: NavHostController) {
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete"
+                                contentDescription = "Delete",
+                                tint = Color.Red
                             )
                         }
                     }

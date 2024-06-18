@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,6 +15,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 
 @Composable
@@ -44,6 +46,8 @@ fun PortraitLayout(navController: NavHostController) {
             contentDescription = "logo",
             modifier = Modifier.size(300.dp)
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = stringResource(id = R.string.app_name), fontSize = 24.sp)
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = { navController.navigate("scanner") },
@@ -83,6 +87,8 @@ fun LandscapeLayout(navController: NavHostController) {
             contentDescription = "logo",
             modifier = Modifier.size(300.dp)
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = stringResource(id = R.string.app_name), fontSize = 24.sp)
         Column(
             modifier = Modifier
                 .padding(start = 16.dp),
