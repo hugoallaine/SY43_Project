@@ -64,8 +64,12 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import android.content.Context
+import com.example.sy43_bookshelft.csv.Quotation
+import com.example.sy43_bookshelft.csv.QuotationObj.quotationList
+import com.example.sy43_bookshelft.csv.writeCsv
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.util.Date
 
 fun CheckOrder(text: String, classification: String, regexMap: Map<String, Regex>): List<Pair<String, Boolean>> {
 
@@ -316,10 +320,10 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                                                         orderedResults = CheckOrder(visionText.text, selectedClassification, regexMap)
                                                         if (orderedResults.any { !it.second }) {
                                                             errorMessage = "Books are not in order!"
-                                                            /*val quotations: MutableList<Quotation> = orderedResults.map {
-                                                                Quotation(it.first, Date())
+                                                            orderedResults.map {
+                                                                quotationList.add(Quotation(it.first, Date()))
                                                             }
-                                                            writeCsv(context, quotations)*/
+                                                            writeCsv(context, quotationList)
                                                         }
                                                     }
                                                 }

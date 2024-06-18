@@ -96,58 +96,60 @@ fun ListScreen(navController: NavHostController) {
         )
     }
 
-    Column {
-        TopAppBar(
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.primary,
-            ),
-            title = {
-                Text(
-                    text = stringResource(id = R.string.list_btn_home)
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = stringResource(id = R.string.back_btn)
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.list_btn_home)
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = stringResource(id = R.string.back_btn)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = stringResource(id = R.string.more_options)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(id = R.string.add_quotation)) },
+                            onClick = {
+                                expanded = false
+                                showDialog = true
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(id = R.string.delete_database),color = Color.Red) },
+                            onClick = {
+                                expanded = false
+                                showDialogDelete = true
+                            }
+                        )
+                    }
                 }
-            },
-            actions = {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(
-                        imageVector = Icons.Filled.MoreVert,
-                        contentDescription = stringResource(id = R.string.more_options)
-                    )
+            )
+            LazyColumn(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                items(quotationList) { quotation ->
+                    QuotationItem(navController, quotation)
                 }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(id = R.string.add_quotation)) },
-                        onClick = {
-                            expanded = false
-                            showDialog = true
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(id = R.string.delete_database),color = Color.Red) },
-                        onClick = {
-                            expanded = false
-                            showDialogDelete = true
-                        }
-                    )
-                }
-            }
-        )
-        LazyColumn(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            items(quotationList) { quotation ->
-                QuotationItem(navController, quotation)
             }
         }
     }
