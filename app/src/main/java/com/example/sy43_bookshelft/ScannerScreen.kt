@@ -64,6 +64,8 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import android.content.Context
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import com.example.sy43_bookshelft.csv.Quotation
 import com.example.sy43_bookshelft.csv.QuotationObj.quotationList
 import com.example.sy43_bookshelft.csv.writeCsv
@@ -209,7 +211,7 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                             .fillMaxWidth()
                             .height(140.dp)
                             .offset(y = (-40).dp)  // Offset from the top
-                            .background(Color.Black)
+                            .background(Black.copy(alpha = 0.5f))
                             .border(2.dp, Color.White)
                             .align(Alignment.TopCenter),
                         contentAlignment = Alignment.Center
@@ -252,7 +254,7 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
                             .fillMaxWidth()
                             .height(160.dp)
                             .offset(y = 40.dp)  // Offset from the bottom
-                            .background(Color.Black)
+                            .background(Black.copy(alpha = 0.5f))
                             .border(2.dp, Color.White)
                             .align(Alignment.BottomCenter),
                         contentAlignment = Alignment.Center // Align button to the center
