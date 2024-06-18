@@ -9,27 +9,27 @@ import java.util.*
 
 val csvFile = "database.csv"
 
-fun checkCsvFile(context: Context, fileName: String): Boolean {
+fun checkCsvFile(context: Context): Boolean {
     println("Checking CSV file...")
-    val file = context.getFileStreamPath(fileName)
+    val file = context.getFileStreamPath(csvFile)
     return file.exists()
 }
 
-fun createCsvFile(context: Context, fileName: String) {
+fun createCsvFile(context: Context) {
     println("Creating CSV file...")
-    val file = context.getFileStreamPath(fileName)
+    val file = context.getFileStreamPath(csvFile)
     file.createNewFile()
     val writer = OutputStreamWriter(file.outputStream())
     writer.write("Value,Date\n")
     writer.close()
 }
 
-fun readCsv(context: Context, fileName: String): List<Quotation> {
+fun readCsv(context: Context): MutableList<Quotation> {
     println("Reading CSV file...")
     val quotationList = mutableListOf<Quotation>()
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
-    context.openFileInput(fileName).bufferedReader().use { reader ->
+    context.openFileInput(csvFile).bufferedReader().use { reader ->
         reader.readLine()
         var line = reader.readLine()
         while (line != null) {
@@ -48,18 +48,17 @@ fun readCsv(context: Context, fileName: String): List<Quotation> {
     return quotationList
 }
 
-
-
-fun writeCsv(context: Context, data: List<Quotation>) {
+fun writeCsv(context: Context, data: MutableList<Quotation>) {
     println("Writing CSV file...")
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    val outputStream = context.openFileOutput(csvFile, Context.MODE_APPEND)
+    val outputStream = context.openFileOutput(csvFile, Context.MODE_PRIVATE)
     val writer = BufferedWriter(OutputStreamWriter(outputStream))
     writer.use { writer ->
+        writer.write("Value,Date\n")
         data.forEach { quotation ->
             val line = "${quotation.value},${dateFormat.format(quotation.date)}\n"
             writer.write(line)
         }
     }
-    loadQuotations(context, csvFile)
+    loadQuotations(context)
 }

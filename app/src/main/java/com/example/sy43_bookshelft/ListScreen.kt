@@ -5,23 +5,94 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.sy43_bookshelft.csv.Quotation
 import com.example.sy43_bookshelft.csv.QuotationObj.quotationList
+import com.example.sy43_bookshelft.csv.writeCsv
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(navController: NavHostController) {
+    var expanded by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    var showDialogDelete by remember { mutableStateOf(false) }
+    var quotationValue by remember { mutableStateOf("") }
     val context = LocalContext.current
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDialog = false
+                        quotationList.add(Quotation(quotationValue, Date()))
+                        writeCsv(context = context, quotationList)
+                        navController.popBackStack()
+                        navController.navigate("list")
+                    }
+                ) {
+                    Text(stringResource(id = R.string.add))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDialog = false }
+                ) {
+                    Text(stringResource(id = R.string.cancel))
+                }
+            },
+            title = { Text(stringResource(id = R.string.add_quotation)) },
+            text = {
+                Column {
+                    Text(stringResource(id = R.string.form_quotation_value))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextField(
+                        value = quotationValue,
+                        onValueChange = { quotationValue = it },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        )
+    } else if (showDialogDelete) {
+        AlertDialog(
+            onDismissRequest = { showDialogDelete = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDialogDelete = false
+                        quotationList.clear()
+                        writeCsv(context = context, quotationList)
+                        navController.popBackStack()
+                        navController.navigate("list")
+                    }
+                ) {
+                    Text(stringResource(id = R.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDialog = false }
+                ) {
+                    Text(stringResource(id = R.string.cancel))
+                }
+            },
+            title = { Text(stringResource(id = R.string.alert_delete_database)) },
+        )
+    }
 
     Column {
         TopAppBar(
@@ -42,6 +113,33 @@ fun ListScreen(navController: NavHostController) {
                     )
                 }
             },
+            actions = {
+                IconButton(onClick = { expanded = true }) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = stringResource(id = R.string.more_options)
+                    )
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(id = R.string.add_quotation)) },
+                        onClick = {
+                            expanded = false
+                            showDialog = true
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(id = R.string.delete_database),color = Color.Red) },
+                        onClick = {
+                            expanded = false
+                            showDialogDelete = true
+                        }
+                    )
+                }
+            }
         )
         LazyColumn(
             modifier = Modifier.padding(16.dp)
