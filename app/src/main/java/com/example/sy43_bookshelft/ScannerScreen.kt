@@ -72,44 +72,41 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.Date
 
+
+//Check Order of the books in the parameter text depend on classification choose and return a list of string with a boolean if the order is correct
 fun CheckOrder(text: String, classification: String, regexMap: Map<String, Regex>): List<Pair<String, Boolean>> {
 
-    println("class : $classification")
     val callNumbers = text.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
     if (callNumbers.isEmpty()) return emptyList()
-    println("regex : $regexMap")
+
     val result = mutableListOf<Pair<String, Boolean>>()
+    //For each book check with the next one
     for (i in 0 until callNumbers.size - 1) {
-        println("Check order")
         val current = callNumbers[i]
         val next = callNumbers[i + 1]
         result.add(Pair(current, isInCorrectOrder(current, next, classification, regexMap)))
     }
+
     result.add(Pair(callNumbers.last(), true))
     return result
 }
+
+// Check if the order of the call numbers is correct
 fun isInCorrectOrder(callNumber1: String, callNumber2: String, classification: String, regexMap: Map<String, Regex>): Boolean {
     println("Regex used: ${regexMap[classification]}")
     val pattern = regexMap[classification] ?: return false
 
-    val cleanedCallNumber1 = callNumber1.replace(" ", "").replace(Regex("(\\.([A-Z]{1,3}))?")) {
-        it.value.takeWhile { ch -> ch != '.' } + it.value.takeLastWhile { ch -> ch.isLetter() }.take(3)
-    }
-    val cleanedCallNumber2 = callNumber2.replace(" ", "").replace(Regex("(\\.([A-Z]{1,3}))?")) {
-        it.value.takeWhile { ch -> ch != '.' } + it.value.takeLastWhile { ch -> ch.isLetter() }.take(3)
-    }
-
-    println("Cleaned call numbers: $cleanedCallNumber1, $cleanedCallNumber2")
+    // Remove spaces from the call numbers
+    val cleanedCallNumber1 = callNumber1.replace(" ", "")
+    val cleanedCallNumber2 = callNumber2.replace(" ", "")
 
     val match1 = pattern.find(cleanedCallNumber1)
     val match2 = pattern.find(cleanedCallNumber2)
 
     if (match1 == null || match2 == null) {
-        println("Invalid format: $cleanedCallNumber1 or $cleanedCallNumber2")
         return false
     }
 
-    println("Match groups: ${match1.groupValues}, ${match2.groupValues}")
 
     // Extract all groups and compare them
     val groupCount = maxOf(match1.groupValues.size, match2.groupValues.size)
@@ -124,10 +121,10 @@ fun isInCorrectOrder(callNumber1: String, callNumber2: String, classification: S
             return comparisonResult < 0
         }
     }
-
-    return true // If all groups are equal, consider them in correct order
+    return true
 }
 
+// Compare two groups based on their type and content
 fun compareGroups(group1: String, group2: String): Int {
     return when {
         group1.isEmpty() && group2.isEmpty() -> 0
@@ -139,6 +136,8 @@ fun compareGroups(group1: String, group2: String): Int {
     }
 }
 
+
+// Load regex from internal file or raw resources if their is no internal file
 fun loadRegexFromInternalFile(context: Context): Map<String, Regex> {
     val regexMap = mutableMapOf<String, Regex>()
     val file = File(context.filesDir, "regex.txt")
@@ -169,7 +168,6 @@ fun loadRegexFromInternalFile(context: Context): Map<String, Regex> {
         }
     }
 
-    println("load regex : $regexMap")
     return regexMap
 }
 
@@ -180,21 +178,18 @@ fun loadRegexFromInternalFile(context: Context): Map<String, Regex> {
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorService) {
-    var scannedText by mutableStateOf("")
-    var errorMessage by mutableStateOf("")
-    var orderedResults by mutableStateOf<List<Pair<String, Boolean>>>(emptyList())
-    var expanded by remember { mutableStateOf(false) }
-    var selectedClassification by remember { mutableStateOf("LCC") }
+    var scannedText by mutableStateOf("") // Store the scanned text
+    var errorMessage by mutableStateOf("") // Store the error message
+    var orderedResults by mutableStateOf<List<Pair<String, Boolean>>>(emptyList()) // Store the ordered results
+    var expanded by remember { mutableStateOf(false) } // Dropdown expanded state
+    var selectedClassification by remember { mutableStateOf("LCC") } // Selected classification
     val context = LocalContext.current
-    val classifications = loadRegexFromInternalFile(context).keys.toList()
-    var regexMap = loadRegexFromInternalFile(context)
+    val classifications = loadRegexFromInternalFile(context).keys.toList() // List of available classifications
+    var regexMap = loadRegexFromInternalFile(context) // Map of regex patterns
 
-    val PREVIEW_ASPECT_RATIO = AspectRatio.RATIO_16_9
+    val PREVIEW_ASPECT_RATIO = AspectRatio.RATIO_16_9 // Aspect ratio for the preview
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    var boxSize by remember { mutableStateOf(Size.Zero) }
-    val screenHeight = configuration.screenHeightDp.dp
-    val screenWidth = configuration.screenWidthDp.dp
 
     Surface(modifier = Modifier.fillMaxSize()) {
         if (isLandscape) {
@@ -391,6 +386,7 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
         }
     }
 }
+// Camera Preview
 @Composable
 fun CameraPreview(
     cameraProviderFuture: ListenableFuture<ProcessCameraProvider>,
@@ -444,11 +440,9 @@ fun CameraPreview(
                 }
 
                 override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-                    // Handle surface changes if necessary
                 }
 
                 override fun surfaceDestroyed(holder: SurfaceHolder) {
-                    // Handle surface destruction if necessary
                 }
             })
             previewSurfaceView
