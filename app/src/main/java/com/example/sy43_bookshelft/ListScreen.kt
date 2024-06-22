@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-
 /**
  * Composable function that represents the list screen of the app.
  *

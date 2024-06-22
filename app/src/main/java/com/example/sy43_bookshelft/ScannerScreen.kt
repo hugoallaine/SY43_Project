@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -71,7 +70,6 @@ import com.example.sy43_bookshelft.csv.writeCsv
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.Date
-
 
 //Check Order of the books in the parameter text depend on classification choose and return a list of string with a boolean if the order is correct
 fun CheckOrder(text: String, classification: String, regexMap: Map<String, Regex>): List<Pair<String, Boolean>> {
@@ -136,7 +134,6 @@ fun compareGroups(group1: String, group2: String): Int {
     }
 }
 
-
 // Load regex from internal file or raw resources if their is no internal file
 fun loadRegexFromInternalFile(context: Context): Map<String, Regex> {
     val regexMap = mutableMapOf<String, Regex>()
@@ -170,10 +167,6 @@ fun loadRegexFromInternalFile(context: Context): Map<String, Regex> {
 
     return regexMap
 }
-
-
-
-
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -387,6 +380,7 @@ fun ScannerScreen(navController: NavHostController, cameraExecutor: ExecutorServ
         }
     }
 }
+
 // Camera Preview
 @Composable
 fun CameraPreview(

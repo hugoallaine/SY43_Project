@@ -9,12 +9,23 @@ import java.util.*
 
 val csvFile = "database.csv"
 
+/**
+ * Check if the CSV file exists
+ *
+ * @param context The context of the application
+ * @return True if the file exists, false otherwise
+ */
 fun checkCsvFile(context: Context): Boolean {
     println("Checking CSV file...")
     val file = context.getFileStreamPath(csvFile)
     return file.exists()
 }
 
+/**
+ * Create the CSV file at first launch
+ *
+ * @param context The context of the application
+ */
 fun createCsvFile(context: Context) {
     println("Creating CSV file...")
     val file = context.getFileStreamPath(csvFile)
@@ -24,11 +35,16 @@ fun createCsvFile(context: Context) {
     writer.close()
 }
 
+/**
+ * Read the CSV file and return a list of Quotation objects
+ *
+ * @param context The context of the application
+ * @return A list of Quotation objects
+ */
 fun readCsv(context: Context): MutableList<Quotation> {
     println("Reading CSV file...")
     val quotationList = mutableListOf<Quotation>()
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-
     context.openFileInput(csvFile).bufferedReader().use { reader ->
         reader.readLine()
         var line = reader.readLine()
@@ -44,10 +60,16 @@ fun readCsv(context: Context): MutableList<Quotation> {
             line = reader.readLine()
         }
     }
-
     return quotationList
 }
 
+/**
+ * Write the list of Quotation objects to the CSV file
+ *
+ * @param context The context of the application
+ * @param data The list of Quotation objects to be written
+ * @return True if the file was written successfully, false otherwise
+ */
 fun writeCsv(context: Context, data: MutableList<Quotation>) {
     println("Writing CSV file...")
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
